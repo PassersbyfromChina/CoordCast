@@ -9,8 +9,14 @@ package com.coordcast.castui;
  * every component for free, which is why components here ask for roles and never for
  * colours.</p>
  *
- * <p>Defaults are the standard M3 dark scheme, which is what this app ships. Set
- * {@link #set} once at startup to re-theme everything.</p>
+ * <p><b>The default is Google's own dark scheme, not the M3 baseline one.</b> The M3
+ * baseline dark palette is purple-tinted ({@code #D0BCFF} on {@code #141218}), which is
+ * what the spec's reference theme uses — but no Google app actually ships it. The values
+ * below were sampled pixel by pixel from Google's own dark-themed apps (Play Store,
+ * Translate, Maps, Earth, Gboard), which agree on two things: a <em>neutral</em> grey
+ * surface around {@code #131313}, and a light periwinkle {@code #B2C5FF} primary.</p>
+ *
+ * <p>Set {@link #set} once at startup to re-theme everything.</p>
  */
 public final class CastColor {
 
@@ -27,24 +33,26 @@ public final class CastColor {
     }
 
     // ---- primary --------------------------------------------------------
-    public int primary = 0xFFD0BCFF;
-    public int onPrimary = 0xFF381E72;
-    public int primaryContainer = 0xFF4F378B;
-    public int onPrimaryContainer = 0xFFEADDFF;
-    public int primaryFixedDim = 0xFFB69DF8;
-    public int inversePrimary = 0xFF6750A4;
+    // #B2C5FF sampled from Gboard's "Add keyboard" and Translate's mic FAB.
+    public int primary = 0xFFB2C5FF;
+    public int onPrimary = 0xFF002E69;
+    // #004A77 sampled from Google Earth's filled buttons and banner.
+    public int primaryContainer = 0xFF004A77;
+    public int onPrimaryContainer = 0xFFC2E7FF;
+    public int primaryFixedDim = 0xFF8FA9E8;
+    public int inversePrimary = 0xFF3B5C9E;
 
     // ---- secondary ------------------------------------------------------
-    public int secondary = 0xFFCCC2DC;
-    public int onSecondary = 0xFF332D41;
-    public int secondaryContainer = 0xFF4A4458;
-    public int onSecondaryContainer = 0xFFE8DEF8;
+    public int secondary = 0xFFC2E7FF;
+    public int onSecondary = 0xFF003355;
+    public int secondaryContainer = 0xFF004A77;
+    public int onSecondaryContainer = 0xFFC2E7FF;
 
     // ---- tertiary -------------------------------------------------------
-    public int tertiary = 0xFFEFB8C8;
-    public int onTertiary = 0xFF492532;
-    public int tertiaryContainer = 0xFF633B48;
-    public int onTertiaryContainer = 0xFFFFD8E4;
+    public int tertiary = 0xFFD3E3FD;
+    public int onTertiary = 0xFF0B2A4A;
+    public int tertiaryContainer = 0xFF1A4C78;
+    public int onTertiaryContainer = 0xFFD3E3FD;
 
     // ---- error ----------------------------------------------------------
     public int error = 0xFFF2B8B5;
@@ -53,24 +61,26 @@ public final class CastColor {
     public int onErrorContainer = 0xFFF9DEDC;
 
     // ---- surfaces -------------------------------------------------------
-    public int surface = 0xFF141218;
-    public int onSurface = 0xFFE6E0E9;
-    public int surfaceVariant = 0xFF49454F;
-    public int onSurfaceVariant = 0xFFCAC4D0;
-    public int surfaceContainerLowest = 0xFF0F0D13;
-    public int surfaceContainerLow = 0xFF1D1B20;
-    public int surfaceContainer = 0xFF211F26;
-    public int surfaceContainerHigh = 0xFF2B2930;
-    public int surfaceContainerHighest = 0xFF36343B;
-    public int inverseSurface = 0xFFE6E0E9;
-    public int inverseOnSurface = 0xFF313033;
+    // #131313 is the single most common pixel in Play Store, Earth and Maps alike.
+    public int surface = 0xFF131313;
+    public int onSurface = 0xFFE3E3E3;
+    public int surfaceVariant = 0xFF444746;
+    public int onSurfaceVariant = 0xFFC4C7C5;
+    public int surfaceContainerLowest = 0xFF0E0E0E;
+    public int surfaceContainerLow = 0xFF1B1B1B;
+    public int surfaceContainer = 0xFF1F1F1F;
+    public int surfaceContainerHigh = 0xFF2A2A2A;
+    public int surfaceContainerHighest = 0xFF363636;
+    public int inverseSurface = 0xFFE3E3E3;
+    public int inverseOnSurface = 0xFF303030;
 
     // ---- lines ----------------------------------------------------------
-    public int outline = 0xFF938F99;
-    public int outlineVariant = 0xFF49454F;
+    // Maps' chips sit on #393939, which is Google's own "outline variant on a surface".
+    public int outline = 0xFF8E918F;
+    public int outlineVariant = 0xFF444746;
     public int scrim = 0xFF000000;
 
-    /** The standard M3 dark scheme. */
+    /** Google's dark scheme — the default. */
     public static CastColor dark() {
         return new CastColor();
     }

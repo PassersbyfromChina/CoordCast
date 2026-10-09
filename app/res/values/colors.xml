@@ -1,26 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Material 3 colour roles, dark scheme — the same values as CastColor.dark(), exposed as
-  resources so XML can use them. Components ask for a role, never for a raw colour: that
-  is what makes re-theming a one-line change.
+  Material 3 colour roles, Google's dark scheme — the same values as CastColor.dark(),
+  exposed as resources so XML can use them. Components ask for a role, never for a raw
+  colour: that is what makes re-theming a one-line change.
+
+  Sampled pixel by pixel from Google's own dark apps (Play Store, Translate, Maps, Earth,
+  Gboard). Note this is NOT the M3 baseline palette: the spec's reference theme is
+  purple-tinted (#D0BCFF on #141218) and no Google app actually ships it. Google's apps
+  agree on a neutral #131313 surface and a light periwinkle #B2C5FF primary.
 -->
 <resources>
     <!-- primary -->
-    <color name="m3_primary">#FFD0BCFF</color>
-    <color name="m3_on_primary">#FF381E72</color>
-    <color name="m3_primary_container">#FF4F378B</color>
-    <color name="m3_on_primary_container">#FFEADDFF</color>
+    <color name="m3_primary">#FFB2C5FF</color>
+    <color name="m3_on_primary">#FF002E69</color>
+    <color name="m3_primary_container">#FF004A77</color>
+    <color name="m3_on_primary_container">#FFC2E7FF</color>
 
     <!-- secondary -->
-    <color name="m3_secondary">#FFCCC2DC</color>
-    <color name="m3_on_secondary">#FF332D41</color>
-    <color name="m3_secondary_container">#FF4A4458</color>
-    <color name="m3_on_secondary_container">#FFE8DEF8</color>
+    <color name="m3_secondary">#FFC2E7FF</color>
+    <color name="m3_on_secondary">#FF003355</color>
+    <color name="m3_secondary_container">#FF004A77</color>
+    <color name="m3_on_secondary_container">#FFC2E7FF</color>
 
     <!-- tertiary -->
-    <color name="m3_tertiary">#FFEFB8C8</color>
-    <color name="m3_tertiary_container">#FF633B48</color>
-    <color name="m3_on_tertiary_container">#FFFFD8E4</color>
+    <color name="m3_tertiary">#FFD3E3FD</color>
+    <color name="m3_tertiary_container">#FF1A4C78</color>
+    <color name="m3_on_tertiary_container">#FFD3E3FD</color>
 
     <!-- error -->
     <color name="m3_error">#FFF2B8B5</color>
@@ -29,20 +34,20 @@
     <color name="m3_on_error_container">#FFF9DEDC</color>
 
     <!-- surfaces -->
-    <color name="m3_surface">#FF141218</color>
-    <color name="m3_on_surface">#FFE6E0E9</color>
-    <color name="m3_surface_variant">#FF49454F</color>
-    <color name="m3_on_surface_variant">#FFCAC4D0</color>
-    <color name="m3_surface_container_lowest">#FF0F0D13</color>
-    <color name="m3_surface_container_low">#FF1D1B20</color>
-    <color name="m3_surface_container">#FF211F26</color>
-    <color name="m3_surface_container_high">#FF2B2930</color>
-    <color name="m3_surface_container_highest">#FF36343B</color>
+    <color name="m3_surface">#FF131313</color>
+    <color name="m3_on_surface">#FFE3E3E3</color>
+    <color name="m3_surface_variant">#FF444746</color>
+    <color name="m3_on_surface_variant">#FFC4C7C5</color>
+    <color name="m3_surface_container_lowest">#FF0E0E0E</color>
+    <color name="m3_surface_container_low">#FF1B1B1B</color>
+    <color name="m3_surface_container">#FF1F1F1F</color>
+    <color name="m3_surface_container_high">#FF2A2A2A</color>
+    <color name="m3_surface_container_highest">#FF363636</color>
 
     <!-- lines -->
-    <color name="m3_outline">#FF938F99</color>
-    <color name="m3_outline_variant">#FF49454F</color>
+    <color name="m3_outline">#FF8E918F</color>
+    <color name="m3_outline_variant">#FF444746</color>
     <color name="m3_scrim">#99000000</color>
     <!-- 10% primary: what M3 paints on press, instead of changing the fill. -->
-    <color name="m3_state_layer">#1AD0BCFF</color>
+    <color name="m3_state_layer">#1AB2C5FF</color>
 </resources>

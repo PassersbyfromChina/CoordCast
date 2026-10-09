@@ -63,7 +63,7 @@
 
 ## 安装
 
-下载 [`dist/CoordCast-1.6.1.apk`](dist/CoordCast-1.6.1.apk)，传到手机点开安装。
+下载 [`dist/CoordCast-1.7.0.apk`](dist/CoordCast-1.7.0.apk)，传到手机点开安装。
 
 也可以从 [Releases](https://github.com/PassersbyfromChina/CoordCast/releases/latest) 页面下载——
 那里同样挂着三个库 jar。两条路径给的是同一个文件（下面这个哈希对两者都成立）：
@@ -71,9 +71,9 @@
 APK 是自签名包（不是应用商店版本），手机需要允许「安装未知来源应用」。
 
 ```
-版本    1.6.1 (versionCode 11)
+版本    1.7.0 (versionCode 12)
 大小    121,477 字节
-SHA-256 DA4C8D91D6DE4436EE365CE1B09618869EDFD1C2586D9033C57B151237B7BA50
+SHA-256 73BC782AF029BA6B61B1B118199EFB6F412A276A7B77055773827D837AD5AB3A
 签名    APK Signature Scheme v2 + v3
 权限    无（安装时权限列表为空）
 ```
@@ -81,8 +81,8 @@ SHA-256 DA4C8D91D6DE4436EE365CE1B09618869EDFD1C2586D9033C57B151237B7BA50
 校验下载是否完整：
 
 ```bash
-sha256sum CoordCast-1.6.1.apk                      # Linux / macOS
-certutil -hashfile CoordCast-1.6.1.apk SHA256      # Windows
+sha256sum CoordCast-1.7.0.apk                      # Linux / macOS
+certutil -hashfile CoordCast-1.7.0.apk SHA256      # Windows
 ```
 
 > 构建是**逐字节可复现的**：`tools/src/ZipTool.java` 给所有 zip 条目写入同一个固定时间戳，
@@ -220,9 +220,9 @@ N31.2304 E121.4737                  前置半球字母
 
 | 模块 | 依赖 | 做什么 | 产物 |
 |---|---|---|---|
-| **`castcore`** | **纯 Java，零 Android** | 文本 → 经纬度；WGS-84 / GCJ-02 / BD-09 互转 | `castcore-1.6.1.jar` |
-| **`castmap`** | Android + castcore | 发现装了哪些地图应用、拼深链、拉起 | `castmap-1.6.1.jar` |
-| **`castui`** | Android，无其他依赖 | Material 3 Expressive 组件 | `castui-1.6.1.jar` |
+| **`castcore`** | **纯 Java，零 Android** | 文本 → 经纬度；WGS-84 / GCJ-02 / BD-09 互转 | `castcore-1.7.0.jar` |
+| **`castmap`** | Android + castcore | 发现装了哪些地图应用、拼深链、拉起 | `castmap-1.7.0.jar` |
+| **`castui`** | Android，无其他依赖 | Material 3 Expressive 组件 | `castui-1.7.0.jar` |
 
 三个模块都**不带资源文件**（M3 组件全部代码绘制），所以是普通 jar，不是 AAR——
 丢进任何 Android 工程就能用，不需要合并资源。
@@ -325,8 +325,8 @@ scheme.primary = 0xFFFFD8E4;
 `tools/build.ps1` 每次构建都会用它**只对着 jar** 编译一遍——如果公开 API 用不了，构建就会失败。
 
 ```bash
-javac -cp "dist/castcore-1.6.1.jar;dist/castmap-1.6.1.jar" -d out samples/Sample.java
-java  -cp "dist/castcore-1.6.1.jar;dist/castmap-1.6.1.jar;out" Sample
+javac -cp "dist/castcore-1.7.0.jar;dist/castmap-1.7.0.jar" -d out samples/Sample.java
+java  -cp "dist/castcore-1.7.0.jar;dist/castmap-1.7.0.jar;out" Sample
 ```
 
 输出：
@@ -356,27 +356,36 @@ BD-09     = 31.234300, 121.484776
 > 现在**整个 UI 层重写为 Material 3 Expressive**，也就是 Android 16/17 的设计语言——
 > 全部是标准 Canvas 绘制，没有背景抓取、没有运行时着色器、没有降级档。
 
-### 颜色：角色，不是色值
+### 颜色：Google 自己的深色方案，不是 M3 基线
 
 M3 是**基于角色**的系统：组件永远不引用调色板里的原始色值，只引用语义角色
 （`primary`、`onPrimary`、`surfaceContainerHigh`、`outline`…）。换一套配色或从壁纸取色，
-所有组件自动跟着变。`CastColor` 里是标准的 M3 暗色方案：
+所有组件自动跟着变。
 
-| 角色 | 值 | 用在哪 |
-|---|---|---|
-| `surface` | `#141218` | 屏幕底色 |
-| `primary` / `onPrimary` | `#D0BCFF` / `#381E72` | 主按钮、"路线" |
-| `secondaryContainer` / `onSecondaryContainer` | `#4A4458` / `#E8DEF8` | 选中段、tonal 按钮 |
-| `onSurface` / `onSurfaceVariant` | `#E6E0E9` / `#CAC4D0` | 正文 / 次要文本 |
-| `outline` / `outlineVariant` | `#938F99` / `#49454F` | 输入框边框 / 分隔线 |
-| `error` | `#F2B8B5` | 校验失败 |
+但**默认值用的不是 M3 基线的紫色调**。基线参考主题是 `#D0BCFF` 配 `#141218`——
+偏紫、偏冷——**没有一个 Google 应用实际长这样**。1.7.0 起改用 Google 自己应用的实测值：
+拿 Play 商店、Google 翻译、Google 地图、Google 地球、Gboard 这五个应用的深色截图，
+逐像素采样出来的。它们在这两件事上完全一致：**中性灰底 `#131313`**，
+以及**淡紫蓝强调色 `#B2C5FF`**。
+
+| 角色 | 值 | 采自 | 用在哪 |
+|---|---|---|---|
+| `surface` | `#131313` | Play 商店 / 地球 / 地图 三者最大面积像素 | 屏幕底色 |
+| `primary` / `onPrimary` | `#B2C5FF` / `#002E69` | Gboard「添加键盘」、翻译麦克风按钮 | 主按钮、"路线" |
+| `secondaryContainer` / `onSecondaryContainer` | `#004A77` / `#C2E7FF` | 地球的按钮与横幅 | 选中段、tonal 按钮 |
+| `onSurface` / `onSurfaceVariant` | `#E3E3E3` / `#C4C7C5` | Gboard 标题 / 副标题 | 正文 / 次要文本 |
+| `surfaceContainerHigh` | `#2A2A2A` | Play 商店卡片层 | 对话框 |
+| `outline` / `outlineVariant` | `#8E918F` / `#444746` | 地图顶部胶囊 `#393939` 家族 | 输入框边框 / 分隔线 |
+| `error` | `#F2B8B5` | — | 校验失败 |
+
+采样脚本留在调研记录里可复现；`app/res/values/colors.xml` 与 `CastColor.dark()` 是同一组值。
 
 ### 状态层：M3 的招牌交互
 
 M3 **不用换填充色来表示 hover / press**，而是在静止填充之上盖一层内容色的半透明**状态层**
-（hover 8%、press 10%、drag 16%）。这一条实现在 `CastColor.hover/pressed/dragged` 和
-`CastButton` 的 `RippleDrawable` 里。它天然适配明暗两套主题——这就是为什么 M3 不能靠
-"把颜色调深一点"来做按压态。
+（hover 8%、press 10%、drag 16%）。这一条实现在 `CastColor.hover/pressed/dragged`、
+`CastButton` 的 `RippleDrawable`，以及分段按钮按下时的 10% 蒙层里。
+它天然适配明暗两套主题——这就是为什么 M3 不能靠"把颜色调深一点"来做按压态。
 
 ### 组件
 
@@ -384,9 +393,28 @@ M3 **不用换填充色来表示 hover / press**，而是在静止填充之上�
 |---|---|
 | **CastButton** | 五种变体（filled / tonal / elevated / outlined / text），高 40dp，胶囊形，Label Large；按下时**圆角张开**（Expressive 形变） |
 | **CastTextField** | outlined 输入框：1dp `outline` → 聚焦 2dp `primary`；标签上浮并**切进边框缺口**（缺口是真的路径断开，不是盖一层背景色，所以在任何底色上都对） |
-| **CastSegmentedButton** | 单选分段按钮：选中段是 `secondaryContainer` 药丸 + 加粗标签，药丸用空间弹簧在段之间移动；可点可拖 |
+| **CastSegmentedButton** | 单选分段按钮：选中段是 `secondaryContainer` 药丸 + 18dp 勾 + 加粗标签，段间有 1dp `outline` 分隔线（被药丸盖住的那条不画），按下盖 10% 状态层；药丸用空间弹簧在段之间移动；可点可拖 |
 | **模态底部面板** | `surfaceContainerLow`，顶角 28dp，32×4dp 拖拽把手，56dp 列表项；从屏幕底边用强调减速曲线升起 |
 | **对话框** | `surfaceContainerHigh` + 28dp 圆角，无描边（靠高度分层），动作是右下角的文本按钮 |
+
+![分段按钮：药丸跟着选择走，分隔线被它盖住](docs/screenshots/07-segment-bd09.png)
+
+#### 1.7.0 修掉的三个 UI 缺陷
+
+这三个都是**看图才能发现**的问题，不是编译能拦住的：
+
+1. **冷启动时分段按钮看不见滑块。** `setItems()` 在 `onCreate` 里调用，那时 `getWidth()`
+   还是 0，算出的药丸宽度就是 0；而 `onLayout` 只在**位置**变化时才同步，位置是 0→0
+   所以宽度永远没被修正，直到你点一下才有东西被画出来。现在 `onLayout` 连宽度一起比对，
+   `onDraw` 里也做了兜底自愈。
+2. **输入框的标签被切掉上半截。** 浮动标签原来摆在 `y = -h/2`，指望
+   `setClipChildren(false)` 让它溢出显示——**没生效**，字的上半部分被输入框自己的边界
+   切平了。现在给 `CastTextField` 在顶部多留 8dp 作为标签专用区（`onMeasure` 里把声明的
+   56dp 当容器高度，额外加上这 8dp），标签始终画在自己边界内。
+3. **光标和"纬度"不在同一高度。** 输入框内边距原来是上 24dp / 下 8dp，把文字压低了约 7dp。
+   改成上下对称 12dp + `CENTER_VERTICAL`，静止标签和光标就落在同一条中线上。
+
+![输入框：标签浮到边框缺口里，光标与文字同高](docs/screenshots/06-typing.png)
 
 ### 动效：两族弹簧
 

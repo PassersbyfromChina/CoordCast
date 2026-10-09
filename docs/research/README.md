@@ -14,6 +14,7 @@
 | 文件 | 内容 |
 |---|---|
 | [`raw/…ExpressiveMotionTokens.kt.md`](raw/https___raw_githubusercontent_com_androidx_androidx_androidx_main_compose_material3_tokens_ExpressiveMotionTokens.kt.md) | **看这份**：androidx `material3` 里的弹簧 token 原文（damping / stiffness） |
+| [sample-google-dark-palette.py](sample-google-dark-palette.py) | **配色看这份**：从 Google 自家应用深色截图里逐像素采样出 CastColor.dark() 用的那一组值 |
 
 官方规范（2026-10-09 核对，均返回 200）：
 

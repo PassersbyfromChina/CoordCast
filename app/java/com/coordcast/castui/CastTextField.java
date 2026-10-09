@@ -37,6 +37,14 @@ public class CastTextField extends FrameLayout {
 
     private static final float RADIUS = CastShape.EXTRA_SMALL;
 
+    /**
+     * Space reserved above the container for the floated label, in dp. A view cannot
+     * reliably paint outside its own bounds — the label used to be laid out at
+     * {@code -h/2} and the top of the glyphs was sliced off flat by the field's own
+     * clip. Growing the view and keeping the label inside it is what actually works.
+     */
+    private static final float LABEL_OVERFLOW = 8f;
+
     private final Paint outlinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Path outlinePath = new Path();
     private final RectF arc = new RectF();
@@ -44,6 +52,8 @@ public class CastTextField extends FrameLayout {
     private EditText input;
     private TextView label;
     private View supporting;
+
+    private int overflow;
 
     /** 0 = label resting inside, 1 = label floated onto the border. */
     private float floatProgress;
@@ -64,6 +74,22 @@ public class CastTextField extends FrameLayout {
         setClipChildren(false);
         setClipToPadding(false);
         outlinePaint.setStyle(Paint.Style.STROKE);
+        overflow = Math.round(CastShape.dp(context, LABEL_OVERFLOW));
+        setPadding(0, overflow, 0, 0);
+    }
+
+    @Override
+    protected void onMeasure(int widthSpec, int heightSpec) {
+        // The height the caller declares is the *container* (the 56dp box the outline
+        // traces). The label needs room above it, so measure against container + overflow;
+        // the padding above then eats exactly that back.
+        if (MeasureSpec.getMode(heightSpec) == MeasureSpec.EXACTLY) {
+            int container = MeasureSpec.getSize(heightSpec);
+            super.onMeasure(widthSpec,
+                    MeasureSpec.makeMeasureSpec(container + overflow, MeasureSpec.EXACTLY));
+        } else {
+            super.onMeasure(widthSpec, heightSpec);
+        }
     }
 
     @Override
@@ -85,8 +111,13 @@ public class CastTextField extends FrameLayout {
         CastType.bodyLarge(input);
         input.setTextColor(CastColor.get().onSurface);
         input.setHintTextColor(CastColor.get().onSurfaceVariant);
-        input.setPadding(CastShape.dp(getContext(), 16), CastShape.dp(getContext(), 24),
-                CastShape.dp(getContext(), 16), CastShape.dp(getContext(), 8));
+        // Symmetric padding + centre gravity is what puts the caret on the same line as
+        // the resting label. Asymmetric padding (24 top, 8 bottom) pushed the text ~7dp
+        // below the label.
+        input.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
+        int side = CastShape.dp(getContext(), 16);
+        input.setPadding(side, CastShape.dp(getContext(), 12),
+                side, CastShape.dp(getContext(), 12));
 
         label = new TextView(getContext());
         CastType.bodyLarge(label);
@@ -180,11 +211,14 @@ public class CastTextField extends FrameLayout {
         label.measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED);
         int w = label.getMeasuredWidth();
         int h = label.getMeasuredHeight();
+        // The line the label lands on is the container's top edge, which is one padding
+        // floor below the view's own top.
+        float borderY = getPaddingTop();
         float restingX = CastShape.dp(getContext(), 16);
         float floatedX = CastShape.dp(getContext(), 12);
         float x = restingX + (floatedX - restingX) * floatProgress;
-        float restingY = (getHeight() - h) / 2f;
-        float floatedY = -h / 2f;
+        float restingY = borderY + (getHeight() - getPaddingTop()) / 2f - h / 2f;
+        float floatedY = borderY - h / 2f;
         float y = restingY + (floatedY - restingY) * floatProgress;
         label.layout(Math.round(x), Math.round(y), Math.round(x) + w, Math.round(y) + h);
 
@@ -213,19 +247,20 @@ public class CastTextField extends FrameLayout {
 
         float inset = outlinePaint.getStrokeWidth() / 2f;
         float r = CastShape.dp(getContext(), RADIUS);
+        // The container sits below the strip reserved for the floated label.
         float left = inset;
-        float top = inset;
+        float top = getPaddingTop() + inset;
         float right = getWidth() - inset;
         float bottom = getHeight() - inset;
 
         // Where the top edge is interrupted for the floating label.
-        float gapStart = r;
-        float gapEnd = r;
+        float gapStart = left + r;
+        float gapEnd = left + r;
         if (floatProgress > 0.01f && label != null && label.getText().length() > 0) {
             float pad = CastShape.dp(getContext(), 4);
             float gs = label.getLeft() - pad;
             float ge = label.getRight() + pad;
-            gapStart = Math.max(r, Math.min(gs, (left + right) / 2f));
+            gapStart = Math.max(left + r, Math.min(gs, (left + right) / 2f));
             gapEnd = Math.min(right - r, Math.max(ge, gapStart));
         }
 
