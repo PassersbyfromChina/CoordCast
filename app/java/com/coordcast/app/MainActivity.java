@@ -392,7 +392,11 @@ public class MainActivity extends Activity {
                 return;
             }
             point = new CoordPoint(lat, lng, datum);
-            String text = getString(R.string.msg_ok, point.gcj02Text());
+            // Name the system the input was read as, then the value the map apps get.
+            // Showing only the GCJ-02 number made picking BD-09 look like it did nothing.
+            String text = datum == CoordSystem.GCJ02
+                    ? getString(R.string.msg_ok_same, point.gcj02Text())
+                    : getString(R.string.msg_ok_convert, datum.display(), point.gcj02Text());
             double shift = point.shiftMeters();
             if (shift >= 1) {
                 text = text + " · " + getString(R.string.msg_shift, Formats.meters(shift));

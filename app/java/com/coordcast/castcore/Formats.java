@@ -32,11 +32,11 @@ public final class Formats {
 
     public static String meters(double m) {
         if (m < 1) {
-            return "<1 m";
+            return "<1\u00A0m";
         }
         if (m < 1000) {
-            return String.format(Locale.US, "%.0f m", m);
+            return String.format(Locale.US, "%.0f\u00A0m", m);
         }
-        return String.format(Locale.US, "%.1f km", m / 1000.0);
+        return String.format(Locale.US, "%.1f\u00A0km", m / 1000.0);
     }
 }

@@ -12,8 +12,8 @@ import com.coordcast.castmap.MapLinks;
  * <p>Compile against the jars in {@code dist/}:</p>
  *
  * <pre>
- *   javac -cp "dist/castcore-1.7.0.jar;dist/castmap-1.7.0.jar" samples/Sample.java
- *   java  -cp "dist/castcore-1.7.0.jar;dist/castmap-1.7.0.jar;." Sample
+ *   javac -cp "dist/castcore-1.7.1.jar;dist/castmap-1.7.1.jar" samples/Sample.java
+ *   java  -cp "dist/castcore-1.7.1.jar;dist/castmap-1.7.1.jar;." Sample
  * </pre>
  *
  * <p>Nothing here needs Android: {@code castcore} is pure Java, and the URI builders in

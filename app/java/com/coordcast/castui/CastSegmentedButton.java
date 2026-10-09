@@ -7,7 +7,6 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
 import android.util.AttributeSet;
-import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.HapticFeedbackConstants;
 import android.view.MotionEvent;
@@ -23,13 +22,20 @@ import java.util.List;
 /**
  * A Material 3 single-select segmented button.
  *
- * <p>Equal segments in one rounded container. The selected segment carries a
- * {@code secondaryContainer} pill with a leading check; the rest stay transparent with
- * {@code onSurfaceVariant} labels. Interaction is a state layer, and the pill moves
- * between segments on the spatial spring.</p>
+ * <p><b>Why this is not a sliding "pill".</b> A single thumb that travels between segments is an
+ * iOS idiom, not an M3 one. In the M3 implementation (see
+ * {@code androidx.compose.material3.SegmentedButton}) every segment is its own surface with its
+ * own container colour: the selected segment simply fills in place, and the only motion is the
+ * check fading and scaling in from its own bottom-left corner, plus the label displacing to make
+ * room for it. Nothing travels between segments.</p>
  *
- * <p>Tap a segment to pick it, or drag across the group — the pill follows and the
- * selection changes live, with a tick of haptics at each boundary.</p>
+ * <p>The sliding version had exactly the problems you would expect from that mismatch: geometry
+ * that had to be kept in sync with layout (and was not, so a cold start showed no selection at
+ * all), a drag that could silently change the selection, and touch handling that could swallow
+ * gestures belonging to a scrolling parent.</p>
+ *
+ * <p>Tap only. A drag never changes the selection, and vertical drags are left for an ancestor
+ * to intercept, so this can live inside a ScrollView.</p>
  */
 public class CastSegmentedButton extends FrameLayout {
 
@@ -38,29 +44,35 @@ public class CastSegmentedButton extends FrameLayout {
         void onSegmentSelected(int index);
     }
 
+    /** M3 segmented button height. */
+    private static final float HEIGHT_DP = 40f;
+    /** M3 check icon size in a segmented button. */
+    private static final float ICON_DP = 18f;
+    /** Gap between the check and the label. */
+    private static final float ICON_GAP_DP = 8f;
+
     private final LinearLayout row = new LinearLayout(getContext());
     private final List<TextView> labels = new ArrayList<>();
-    private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint fillPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint strokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint checkPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    private final Path checkPath = new Path();
+    private final Path shape = new Path();
+    private final Path check = new Path();
     private final RectF rect = new RectF();
+    private final float[] radii = new float[8];
 
     private int selected;
-    private float pillLeft;
-    private float pillWidth;
-    private float stretch;
     private boolean dragging;
-    private float downX;
-    private float grabOffset;
 
-    /** 0 = no check, 1 = full check. Starts at 1 so the first frame is already correct. */
+    /** 0 = no check, 1 = check fully in. Drives the check and the label displacement. */
     private float checkProgress = 1f;
-    /** Segment the finger is currently on, or -1. Drives the M3 press state layer. */
+    /** Segment the finger is on, or -1. Drives the M3 press state layer. */
     private int pressedIndex = -1;
+    private float downX;
+    private float downY;
 
     private OnSegmentSelected listener;
-    private ValueAnimator pillAnimator;
-    private ValueAnimator stretchAnimator;
+    private ValueAnimator checkAnimator;
 
     public CastSegmentedButton(Context context) {
         this(context, null);
@@ -69,11 +81,12 @@ public class CastSegmentedButton extends FrameLayout {
     public CastSegmentedButton(Context context, AttributeSet attrs) {
         super(context, attrs);
         setWillNotDraw(false);
-        int height = CastShape.dp(context, 40);
+        int height = CastShape.dp(context, HEIGHT_DP);
         setMinimumHeight(height);
         row.setOrientation(LinearLayout.HORIZONTAL);
         addView(row, new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height));
         setClickable(true);
+        setFocusable(true);
     }
 
     // ----------------------------------------------------------- public API
@@ -94,11 +107,9 @@ public class CastSegmentedButton extends FrameLayout {
         }
         selected = items.length == 0 ? 0
                 : Math.max(0, Math.min(initialIndex, items.length - 1));
-        refreshLabels();
-        cancel(pillAnimator);
-        pillLeft = targetLeft();
-        pillWidth = segmentWidth();
         checkProgress = 1f;
+        refreshLabels();
+        updateContentDescription();
         invalidate();
     }
 
@@ -118,7 +129,8 @@ public class CastSegmentedButton extends FrameLayout {
         boolean changed = index != selected;
         selected = index;
         refreshLabels();
-        settle();
+        updateContentDescription();
+        animateCheck();
         if (notify && changed) {
             performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK);
             if (listener != null) {
@@ -127,278 +139,258 @@ public class CastSegmentedButton extends FrameLayout {
         }
     }
 
+    // ------------------------------------------------------------ geometry
+
+    private int count() {
+        return labels.size();
+    }
+
+    private float segmentWidth() {
+        int n = count();
+        return n == 0 ? 0f : (float) getWidth() / n;
+    }
+
+    private int indexAt(float x) {
+        float w = segmentWidth();
+        if (w <= 0f) {
+            return selected;
+        }
+        return Math.max(0, Math.min((int) (x / w), count() - 1));
+    }
+
+    /**
+     * The rounded rect for one segment. Only the outer ends of the group are rounded; interior
+     * edges are square and pushed out by half a stroke so two neighbouring segments draw exactly
+     * the same dividing line, instead of two lines a pixel apart.
+     */
+    private void shapeFor(int i, float stroke, Path out) {
+        float segW = segmentWidth();
+        float h = getHeight();
+        float r = h / 2f;
+        float half = stroke / 2f;
+        float left = i * segW - (i == 0 ? 0f : half);
+        float right = (i + 1) * segW + (i == count() - 1 ? 0f : half);
+        rect.set(left + half, half, right - half, h - half);
+
+        float tl = i == 0 ? r : 0f;
+        float tr = i == count() - 1 ? r : 0f;
+        radii[0] = tl; radii[1] = tl;
+        radii[2] = tr; radii[3] = tr;
+        radii[4] = tr; radii[5] = tr;
+        radii[6] = tl; radii[7] = tl;
+
+        out.reset();
+        out.addRoundRect(rect, radii, Path.Direction.CW);
+    }
+
     // ------------------------------------------------------------ painting
 
     @Override
     protected void onDraw(Canvas canvas) {
+        int n = count();
+        if (n == 0) {
+            return;
+        }
         CastColor scheme = CastColor.get();
-        float height = getHeight();
-        float width = getWidth();
-        float radius = height * 0.5f;
         float density = getResources().getDisplayMetrics().density;
         float stroke = Math.max(density, CastShape.dp(getContext(), 1));
-        float inset = stroke / 2f;
 
-        // Never let the pill be invisible: if setItems() ran before the first layout the
-        // stored width is still 0, and a segmented button with no visible selection is
-        // indistinguishable from an empty track. Work it out on the fly instead.
-        float segW = segmentWidth();
-        float pillX = pillWidth > 0f ? pillLeft : targetLeft();
-        float pillW = pillWidth > 0f ? pillWidth : segW;
-
-        // 1. The selected pill, under everything else.
-        if (pillW > 0f) {
-            paint.setStyle(Paint.Style.FILL);
-            paint.setColor(scheme.secondaryContainer);
-            float left = Math.max(0, pillX - stretch);
-            float right = Math.min(width, pillX + pillW + stretch);
-            rect.set(left, 0, right, height);
-            canvas.drawRoundRect(rect, radius, radius, paint);
+        // 1. Fills first, so a neighbour's outline cannot be covered by the selected fill.
+        fillPaint.setStyle(Paint.Style.FILL);
+        if (selected >= 0 && selected < n) {
+            shapeFor(selected, stroke, shape);
+            fillPaint.setColor(scheme.secondaryContainer);
+            canvas.drawPath(shape, fillPaint);
         }
 
-        // 2. Dividers between segments. M3 draws a 1dp outline-coloured rule on each
-        //    internal boundary, and the selected pill covers the ones it touches — that
-        //    is what makes it read as one control rather than a track with a dot on it.
-        paint.setStyle(Paint.Style.FILL);
-        paint.setColor(scheme.outline);
-        for (int i = 1; i < labels.size(); i++) {
-            float x = i * segW;
-            boolean coveredByPill = pillW > 0f && x >= (pillX - stretch) && x <= (pillX + pillW + stretch);
-            if (coveredByPill) {
-                continue;
-            }
-            canvas.drawRect(x - stroke / 2f, inset + radius * 0.42f,
-                    x + stroke / 2f, height - inset - radius * 0.42f, paint);
+        // 2. Press state layer: a 10% veil of the content colour, not a different fill.
+        if (pressedIndex >= 0 && pressedIndex < n) {
+            shapeFor(pressedIndex, stroke, shape);
+            fillPaint.setColor(CastColor.pressed(scheme.onSurface));
+            canvas.drawPath(shape, fillPaint);
         }
 
-        // 3. The container outline, on top of both.
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeWidth(stroke);
-        paint.setColor(scheme.outline);
-        rect.set(inset, inset, width - inset, height - inset);
-        canvas.drawRoundRect(rect, radius, radius, paint);
-
-        // 4. The press state layer. M3 does not change the fill on press; it lays a 10%
-        //    veil of the content colour over whatever is already there.
-        if (pressedIndex >= 0 && segW > 0f) {
-            paint.setStyle(Paint.Style.FILL);
-            paint.setColor(CastColor.pressed(scheme.onSurface));
-            float l = pressedIndex * segW;
-            float r = l + segW;
-            boolean first = pressedIndex == 0;
-            boolean last = pressedIndex == labels.size() - 1;
-            if (first || last) {
-                rect.set(first ? 0 : l, 0, last ? width : r, height);
-                canvas.drawRoundRect(rect, radius, radius, paint);
-                if (first && last) {
-                    // one segment only: the whole pill is already rounded
-                } else if (first) {
-                    canvas.drawRect(l + radius, 0, r, height, paint);
-                } else {
-                    canvas.drawRect(l, 0, r - radius, height, paint);
-                }
-            } else {
-                canvas.drawRect(l, 0, r, height, paint);
-            }
+        // 3. Outlines, one per segment. Shared edges land exactly on top of each other.
+        strokePaint.setStyle(Paint.Style.STROKE);
+        strokePaint.setStrokeWidth(stroke);
+        strokePaint.setColor(scheme.outline);
+        for (int i = 0; i < n; i++) {
+            shapeFor(i, stroke, shape);
+            canvas.drawPath(shape, strokePaint);
         }
 
-        // 5. The check on the selected segment.
-        if (pillW > 0f && checkProgress > 0f) {
-            drawCheck(canvas, pillX, pillW, height, scheme.onSecondaryContainer);
+        // 4. The check, scaling in from its bottom-left corner: M3 enters it with
+        //    scaleIn(initialScale = 0, transformOrigin = (0, 1)) plus a fade.
+        if (checkProgress > 0.001f && selected >= 0 && selected < n) {
+            drawCheck(canvas, selected, scheme.onSecondaryContainer, stroke);
         }
     }
 
-    /**
-     * The M3 selected cue is a leading check mark. Drawn as a path rather than pulled from
-     * {@code android.R.drawable}, which is a platform checkbox glyph and looks nothing
-     * like an M3 check.
-     */
-    private void drawCheck(Canvas canvas, float pillX, float pillW, float height, int color) {
-        float d = CastShape.dp(getContext(), 18);
-        // Leading edge of the *label*, not of the pill: the label is offset by the same
-        // amount when the check is showing, so the two stay concentric.
-        float cx = pillX + CastShape.dp(getContext(), 12) + d / 2f;
-        float cy = height / 2f;
-        float s = d / 2f * checkProgress;
-        checkPaint.setColor(color);
-        checkPaint.setAlpha(Math.round(255 * Math.min(1f, checkProgress)));
+    private void drawCheck(Canvas canvas, int index, int color, float stroke) {
+        float segW = segmentWidth();
+        float d = CastShape.dp(getContext(), ICON_DP);
+        float gap = CastShape.dp(getContext(), ICON_GAP_DP);
+        TextView label = labels.get(index);
+
+        // Check and label are centred in the segment as one group, which is what the M3
+        // measure policy does: group width = icon + gap + label.
+        float groupW = d + gap + label.getMeasuredWidth();
+        float groupLeft = index * segW + (segW - groupW) / 2f;
+        float originX = groupLeft;
+        float originY = getHeight() / 2f + d / 2f;
+
+        float p = Math.min(1f, checkProgress);
+        int save = canvas.save();
+        canvas.scale(p, p, originX, originY);
+
         checkPaint.setStyle(Paint.Style.STROKE);
-        checkPaint.setStrokeWidth(CastShape.dp(getContext(), 2));
+        checkPaint.setStrokeWidth(Math.max(CastShape.dp(getContext(), 2), stroke * 2f));
         checkPaint.setStrokeCap(Paint.Cap.ROUND);
         checkPaint.setStrokeJoin(Paint.Join.ROUND);
-        checkPath.reset();
-        checkPath.moveTo(cx - s * 0.85f, cy + s * 0.05f);
-        checkPath.lineTo(cx - s * 0.22f, cy + s * 0.68f);
-        checkPath.lineTo(cx + s * 0.88f, cy - s * 0.62f);
-        canvas.drawPath(checkPath, checkPaint);
-    }
+        checkPaint.setColor(color);
+        checkPaint.setAlpha(Math.round(255 * p));
 
-    /** How much room the check takes from the front of a segment's label. */
-    private float checkShift() {
-        return CastShape.dp(getContext(), 22);
-    }
-
-    @Override
-    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        super.onLayout(changed, left, top, right, bottom);
-        if (!dragging && pillAnimator == null) {
-            float target = targetLeft();
-            float w = segmentWidth();
-            // Comparing the width as well matters: setItems() runs before the first
-            // layout, when getWidth() is still 0, so the pill width it stored is 0 and
-            // the selection is never drawn until something else moves it.
-            if (Math.abs(pillLeft - target) > 0.5f || Math.abs(pillWidth - w) > 0.5f) {
-                pillLeft = target;
-                pillWidth = w;
-                invalidate();
-            }
-        }
-    }
-
-    private float segmentWidth() {
-        return labels.isEmpty() ? 0 : (float) getWidth() / labels.size();
-    }
-
-    private float targetLeft() {
-        return selected * segmentWidth();
+        float cx = originX + d / 2f;
+        float cy = getHeight() / 2f;
+        float s = d / 2f;
+        check.reset();
+        check.moveTo(cx - s * 0.72f, cy + s * 0.04f);
+        check.lineTo(cx - s * 0.20f, cy + s * 0.56f);
+        check.lineTo(cx + s * 0.72f, cy - s * 0.52f);
+        canvas.drawPath(check, checkPaint);
+        canvas.restoreToCount(save);
     }
 
     // --------------------------------------------------------------- touch
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (labels.isEmpty()) {
+        if (count() == 0) {
             return false;
         }
         float slop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
                 downX = event.getX();
+                downY = event.getY();
                 dragging = false;
-                grabOffset = downX - targetLeft();
                 pressedIndex = indexAt(downX);
-                cancel(pillAnimator);
                 invalidate();
+                // Deliberately NOT calling requestDisallowInterceptTouchEvent: an ancestor
+                // ScrollView stays free to claim a vertical drag and scroll.
                 return true;
             case MotionEvent.ACTION_MOVE:
-                if (!dragging && Math.abs(event.getX() - downX) > slop) {
+                if (Math.abs(event.getX() - downX) > slop
+                        || Math.abs(event.getY() - downY) > slop) {
+                    // Too far to be a tap. A drag is not a selection gesture in M3, so this
+                    // only cancels the press — it never changes the selection.
                     dragging = true;
-                    stretch(true);
                     pressedIndex = -1;
-                }
-                if (dragging) {
-                    dragTo(event.getX() - grabOffset);
+                    invalidate();
                 }
                 return true;
             case MotionEvent.ACTION_UP:
-            case MotionEvent.ACTION_CANCEL:
                 pressedIndex = -1;
-                if (dragging) {
-                    stretch(false);
-                    settle();
-                } else {
+                invalidate();
+                if (!dragging) {
                     int tapped = indexAt(event.getX());
-                    if (tapped == selected) {
-                        settle();
-                    } else {
+                    if (tapped != selected) {
                         select(tapped, true);
+                    } else {
+                        performClick();
                     }
                 }
+                return true;
+            case MotionEvent.ACTION_CANCEL:
+                dragging = true;
+                pressedIndex = -1;
+                invalidate();
                 return true;
             default:
                 return super.onTouchEvent(event);
         }
     }
 
-    private int indexAt(float x) {
-        int width = Math.round(segmentWidth());
-        if (width <= 0) {
-            return selected;
-        }
-        return Math.max(0, Math.min((int) (x / width), labels.size() - 1));
-    }
-
-    private void dragTo(float newLeft) {
-        float width = segmentWidth();
-        pillLeft = Math.max(0, Math.min(getWidth() - width, newLeft));
-        pillWidth = width;
-        checkProgress = 1f;
-        pressedIndex = -1;
-        int index = indexAt(pillLeft + width / 2f);
-        if (index != selected) {
-            selected = index;
-            refreshLabels();
-            performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK);
-        }
-        invalidate();
+    @Override
+    public boolean performClick() {
+        super.performClick();
+        return true;
     }
 
     // ------------------------------------------------------------ animation
 
-    private void settle() {
-        final float fromLeft = pillLeft;
-        final float fromWidth = pillWidth;
-        final float toLeft = targetLeft();
-        final float toWidth = segmentWidth();
+    /** Plays the M3 enter transition for the check when the selection moves. */
+    private void animateCheck() {
         if (!CastMotion.animationsEnabled(getContext())) {
-            pillLeft = toLeft;
-            pillWidth = toWidth;
             checkProgress = 1f;
+            positionLabels();
             invalidate();
             return;
         }
-        cancel(pillAnimator);
-        pillAnimator = ValueAnimator.ofFloat(0f, 1f);
-        pillAnimator.setDuration(CastMotion.MEDIUM3);
-        // Spatial spring: the pill lands with a touch of weight.
-        pillAnimator.setInterpolator(CastMotion.SPATIAL);
-        pillAnimator.addUpdateListener(a -> {
-            float t = (float) a.getAnimatedValue();
-            pillLeft = fromLeft + (toLeft - fromLeft) * t;
-            pillWidth = fromWidth + (toWidth - fromWidth) * t;
-            // The check fades and grows in behind the pill; the effects spring keeps it
-            // from overshooting into a wobble.
-            checkProgress = Math.min(1f, t * 1.6f);
+        if (checkAnimator != null) {
+            checkAnimator.cancel();
+        }
+        // Start from nothing so the check does not flash at full size for one frame.
+        checkProgress = 0f;
+        positionLabels();
+        invalidate();
+        checkAnimator = ValueAnimator.ofFloat(0f, 1f);
+        // The icon shares the label's fast spatial spring in M3; the fade rides along.
+        checkAnimator.setDuration(CastMotion.MEDIUM1);
+        checkAnimator.setInterpolator(CastMotion.SPATIAL_FAST);
+        checkAnimator.addUpdateListener(a -> {
+            checkProgress = (float) a.getAnimatedValue();
+            positionLabels();
             invalidate();
         });
-        pillAnimator.start();
+        checkAnimator.start();
     }
 
-    private void stretch(boolean on) {
-        if (!CastMotion.animationsEnabled(getContext())) {
-            stretch = on ? CastShape.dp(getContext(), 6) : 0f;
-            invalidate();
+    @Override
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        super.onLayout(changed, left, top, right, bottom);
+        positionLabels();
+    }
+
+    /**
+     * Displaces the selected label to make room for the check. M3 moves the content by half the
+     * icon-plus-gap, because the group is centred rather than left-aligned.
+     */
+    private void positionLabels() {
+        if (labels.isEmpty()) {
             return;
         }
-        cancel(stretchAnimator);
-        stretchAnimator = ValueAnimator.ofFloat(stretch, on ? CastShape.dp(getContext(), 6) : 0f);
-        stretchAnimator.setDuration(on ? CastMotion.SHORT4 : CastMotion.MEDIUM3);
-        stretchAnimator.setInterpolator(on ? CastMotion.PRESS : CastMotion.SPATIAL);
-        stretchAnimator.addUpdateListener(a -> {
-            stretch = (float) a.getAnimatedValue();
-            invalidate();
-        });
-        stretchAnimator.start();
-    }
-
-    private void cancel(ValueAnimator animator) {
-        if (animator != null) {
-            animator.cancel();
+        for (TextView label : labels) {
+            label.measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED);
+        }
+        float shift = (CastShape.dp(getContext(), ICON_DP)
+                + CastShape.dp(getContext(), ICON_GAP_DP)) / 2f;
+        for (int i = 0; i < labels.size(); i++) {
+            boolean on = i == selected;
+            labels.get(i).setTranslationX(on ? shift * Math.min(1f, checkProgress) : 0f);
         }
     }
 
     private void refreshLabels() {
         CastColor scheme = CastColor.get();
-        float shift = checkShift();
         for (int i = 0; i < labels.size(); i++) {
             TextView label = labels.get(i);
             boolean on = i == selected;
             label.setTextColor(on ? scheme.onSecondaryContainer : scheme.onSurfaceVariant);
             label.setTypeface(android.graphics.Typeface.create("sans-serif",
                     on ? android.graphics.Typeface.BOLD : android.graphics.Typeface.NORMAL));
-            // The check sits in front of the label, so the label slides over by the same
-            // amount to keep the pair centred inside the segment.
-            label.setTranslationX(on ? shift : 0f);
+        }
+        positionLabels();
+    }
+
+    /**
+     * A custom view with plain child views exposes one accessibility node, so there is no
+     * per-segment semantics here; announcing the current value is the honest minimum. Real
+     * per-segment support needs {@code ExploreByTouchHelper}.
+     */
+    private void updateContentDescription() {
+        if (selected >= 0 && selected < labels.size()) {
+            setContentDescription(labels.get(selected).getText());
         }
     }
 }

@@ -63,7 +63,7 @@
 
 ## 安装
 
-下载 [`dist/CoordCast-1.7.0.apk`](dist/CoordCast-1.7.0.apk)，传到手机点开安装。
+下载 [`dist/CoordCast-1.7.1.apk`](dist/CoordCast-1.7.1.apk)，传到手机点开安装。
 
 也可以从 [Releases](https://github.com/PassersbyfromChina/CoordCast/releases/latest) 页面下载——
 那里同样挂着三个库 jar。两条路径给的是同一个文件（下面这个哈希对两者都成立）：
@@ -71,9 +71,9 @@
 APK 是自签名包（不是应用商店版本），手机需要允许「安装未知来源应用」。
 
 ```
-版本    1.7.0 (versionCode 12)
+版本    1.7.1 (versionCode 13)
 大小    121,477 字节
-SHA-256 73BC782AF029BA6B61B1B118199EFB6F412A276A7B77055773827D837AD5AB3A
+SHA-256 C5C00D81EACAC795B1B70E5C144EEA092A5CA89EAA758AB976431B8D875ED6DF
 签名    APK Signature Scheme v2 + v3
 权限    无（安装时权限列表为空）
 ```
@@ -81,8 +81,8 @@ SHA-256 73BC782AF029BA6B61B1B118199EFB6F412A276A7B77055773827D837AD5AB3A
 校验下载是否完整：
 
 ```bash
-sha256sum CoordCast-1.7.0.apk                      # Linux / macOS
-certutil -hashfile CoordCast-1.7.0.apk SHA256      # Windows
+sha256sum CoordCast-1.7.1.apk                      # Linux / macOS
+certutil -hashfile CoordCast-1.7.1.apk SHA256      # Windows
 ```
 
 > 构建是**逐字节可复现的**：`tools/src/ZipTool.java` 给所有 zip 条目写入同一个固定时间戳，
@@ -220,9 +220,9 @@ N31.2304 E121.4737                  前置半球字母
 
 | 模块 | 依赖 | 做什么 | 产物 |
 |---|---|---|---|
-| **`castcore`** | **纯 Java，零 Android** | 文本 → 经纬度；WGS-84 / GCJ-02 / BD-09 互转 | `castcore-1.7.0.jar` |
-| **`castmap`** | Android + castcore | 发现装了哪些地图应用、拼深链、拉起 | `castmap-1.7.0.jar` |
-| **`castui`** | Android，无其他依赖 | Material 3 Expressive 组件 | `castui-1.7.0.jar` |
+| **`castcore`** | **纯 Java，零 Android** | 文本 → 经纬度；WGS-84 / GCJ-02 / BD-09 互转 | `castcore-1.7.1.jar` |
+| **`castmap`** | Android + castcore | 发现装了哪些地图应用、拼深链、拉起 | `castmap-1.7.1.jar` |
+| **`castui`** | Android，无其他依赖 | Material 3 Expressive 组件 | `castui-1.7.1.jar` |
 
 三个模块都**不带资源文件**（M3 组件全部代码绘制），所以是普通 jar，不是 AAR——
 丢进任何 Android 工程就能用，不需要合并资源。
@@ -325,8 +325,8 @@ scheme.primary = 0xFFFFD8E4;
 `tools/build.ps1` 每次构建都会用它**只对着 jar** 编译一遍——如果公开 API 用不了，构建就会失败。
 
 ```bash
-javac -cp "dist/castcore-1.7.0.jar;dist/castmap-1.7.0.jar" -d out samples/Sample.java
-java  -cp "dist/castcore-1.7.0.jar;dist/castmap-1.7.0.jar;out" Sample
+javac -cp "dist/castcore-1.7.1.jar;dist/castmap-1.7.1.jar" -d out samples/Sample.java
+java  -cp "dist/castcore-1.7.1.jar;dist/castmap-1.7.1.jar;out" Sample
 ```
 
 输出：
@@ -393,7 +393,7 @@ M3 **不用换填充色来表示 hover / press**，而是在静止填充之上�
 |---|---|
 | **CastButton** | 五种变体（filled / tonal / elevated / outlined / text），高 40dp，胶囊形，Label Large；按下时**圆角张开**（Expressive 形变） |
 | **CastTextField** | outlined 输入框：1dp `outline` → 聚焦 2dp `primary`；标签上浮并**切进边框缺口**（缺口是真的路径断开，不是盖一层背景色，所以在任何底色上都对） |
-| **CastSegmentedButton** | 单选分段按钮：选中段是 `secondaryContainer` 药丸 + 18dp 勾 + 加粗标签，段间有 1dp `outline` 分隔线（被药丸盖住的那条不画），按下盖 10% 状态层；药丸用空间弹簧在段之间移动；可点可拖 |
+| **CastSegmentedButton** | 单选分段按钮，严格照 androidx `material3.SegmentedButton`：每个段是**自己的**容器，选中段**原地**填 `secondaryContainer`；18dp 勾从**自身左下角**缩放淡入；标签右移半个「勾+间距」；段间 1dp `outline`；只可点击，**没有任何会滑动的东西** |
 | **模态底部面板** | `surfaceContainerLow`，顶角 28dp，32×4dp 拖拽把手，56dp 列表项；从屏幕底边用强调减速曲线升起 |
 | **对话框** | `surfaceContainerHigh` + 28dp 圆角，无描边（靠高度分层），动作是右下角的文本按钮 |
 
@@ -413,6 +413,32 @@ M3 **不用换填充色来表示 hover / press**，而是在静止填充之上�
    56dp 当容器高度，额外加上这 8dp），标签始终画在自己边界内。
 3. **光标和"纬度"不在同一高度。** 输入框内边距原来是上 24dp / 下 8dp，把文字压低了约 7dp。
    改成上下对称 12dp + `CENTER_VERTICAL`，静止标签和光标就落在同一条中线上。
+
+#### 1.7.1：分段按钮重写（之前的滑块不是谷歌的设计）
+
+1.7.0 里那个"会动的药丸"**是我自己发明的，不是 M3**。单拇指在段之间滑动是 iOS 的做法；
+查 androidx 的 `material3.SegmentedButton` 源码可以确认，M3 里**每个段是独立的 Surface**，
+选中段只是**在原地**把容器填上 `secondaryContainer`，唯一的动效是勾的入场
+（`fadeIn + scaleIn(initialScale = 0, transformOrigin = (0, 1))`，也就是从**自己的左下角**长出来）
+和标签为腾出位置而位移。段之间没有任何东西在移动。
+
+滑块的写法还带来了一串本可避免的问题，这次一并消失：
+
+- 位置和宽度要跟布局同步——而 `setItems()` 在 `onCreate` 里跑，那时宽度还是 0，
+  冷启动就**什么都看不见**（1.7.0 只是打了个补丁，1.7.1 把状态本身去掉了）。
+- 拖动可以**误改**坐标系——现在拖动只取消按压，绝不改选择。
+- 触摸处理复杂到可能吞掉本属于父级 ScrollView 的手势。
+
+另外把读数改清楚了。原来无论你选哪个坐标系，读数**永远只显示 GCJ-02**——
+选了 BD-09 却看到一串 GCJ-02，看起来就像选择被忽略了。现在会先说你选的是什么：
+
+```
+WGS-84 → GCJ-02 31.228458, 121.478223 · 偏移 481 m
+GCJ-02 31.230400, 121.473700 · 无需换算
+BD-09 → GCJ-02 31.224342, 121.467195 · 偏移 915 m
+```
+
+单位前的空格换成了不换行空格，"915 m" 不会再被折行拆开。
 
 ![输入框：标签浮到边框缺口里，光标与文字同高](docs/screenshots/06-typing.png)
 

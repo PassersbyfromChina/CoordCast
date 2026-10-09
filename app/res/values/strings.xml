@@ -23,7 +23,11 @@
     <string name="msg_range">数值超出经纬度范围（±90 / ±180）</string>
     <string name="msg_invalid">纬度需在 ±90 之间，经度需在 ±180 之间</string>
     <string name="msg_swapped">纬度和经度似乎填反了</string>
-    <string name="msg_ok">GCJ-02 %1$s</string>
+    <!-- The readout names the system you said the input was in, then what the map
+         apps actually receive. Without the first half, choosing BD-09 and still being
+         shown a GCJ-02 number looks like the choice was ignored. -->
+    <string name="msg_ok_same">GCJ-02 %1$s · 无需换算</string>
+    <string name="msg_ok_convert">%1$s → GCJ-02 %2$s</string>
     <string name="msg_shift">偏移 %1$s</string>
     <string name="status_clipboard_empty">剪贴板里没有文字</string>
     <string name="status_share_imported">已导入分享的文本</string>
