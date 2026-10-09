@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Map marker: teardrop outline with a centre dot. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="17dp"
+    android:height="17dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M12,21.2 C12,21.2 18.4,14.6 18.4,9.6 A6.4,6.4 0 0 0 5.6,9.6 C5.6,14.6 12,21.2 12,21.2 Z"
+        android:strokeColor="@color/m3_on_surface"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="1.7" />
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M12,7.2 A2.4,2.4 0 0 0 12,12 A2.4,2.4 0 0 0 12,7.2 Z"
+        android:strokeColor="@color/m3_on_surface"
+        android:strokeWidth="1.7" />
+</vector>

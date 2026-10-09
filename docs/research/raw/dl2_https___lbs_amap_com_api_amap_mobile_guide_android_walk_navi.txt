@@ -1,0 +1,43 @@
+﻿您现在的位置：
+-->
+开发
+高德地图手机版
+开发指南
+Android
+步行导航
+步行导航
+最后更新时间: 2026年10月07日
+输入终点，以用户当前位置为起点开始步行导航，提示用户每段行驶路线以到达目的地。
+支持版本V8.26.0 起
+。
+使用示例
+cat=android.intent.action.VIEW
+dat=amapuri://openFeature?featureName=OnFootNavi&sourceApplication=aaa&lat=110&lon=36
+参数说明
+参数
+说明
+是否必填
+openFeature
+外部调用必备字段。
+是
+featureName
+功能名称，onFootNavi 为步行导航。
+是
+sourceApplication
+第三方调用应用名称。如：appname，为了保障对您的服务，请务必填写！！
+是
+lat
+纬度
+是
+lon
+经度
+是
+dev
+是否偏移(0:lat 和 lon 是已经加密后的,不需要国测加密; 1:需要国测加密)
+是
+使用效果图
+上一篇：导航
+下一篇：骑行导航
+-->
+-->
+

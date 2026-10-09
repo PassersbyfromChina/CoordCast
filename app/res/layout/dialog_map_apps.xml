@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Material 3 modal bottom sheet: drag handle, title, then the list of map apps. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingStart="@dimen/space_8"
+    android:paddingEnd="@dimen/space_8"
+    android:paddingBottom="@dimen/space_8">
+
+    <LinearLayout
+        android:id="@+id/sheet_surface"
+        style="@style/Widget.CastSheet"
+        android:background="@drawable/sheet_surface"
+        android:elevation="3dp">
+
+        <!-- The drag handle is what tells a user this is a sheet, not a dialog. -->
+        <View
+            android:layout_width="@dimen/sheet_handle_width"
+            android:layout_height="@dimen/sheet_handle_height"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/space_4"
+            android:background="@drawable/sheet_handle" />
+
+        <TextView
+            android:id="@+id/sheet_title"
+            style="@style/Text.CastTitleMedium"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_16"
+            android:layout_marginTop="@dimen/space_16"
+            android:layout_marginEnd="@dimen/space_16"
+            android:layout_marginBottom="@dimen/space_8"
+            android:text="@string/sheet_open_with"
+            android:textColor="@color/m3_on_surface_variant" />
+
+        <LinearLayout
+            android:id="@+id/sheet_rows"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+    </LinearLayout>
+
+</FrameLayout>

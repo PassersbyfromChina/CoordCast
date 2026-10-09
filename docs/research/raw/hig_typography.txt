@@ -1,0 +1,163 @@
+
+
+## Ensuring legibility
+Use font sizes that most people can read easily. People need to be able to read your content at various viewing distances and under a variety of conditions. Follow the recommended default and minimum text sizes for each platform — for both custom and system fonts — to ensure your text is legible on all devices. Keep in mind that font weight can also impact how easy text is to read. If you use a custom font with a thin weight, aim for larger than the recommended sizes to increase legibility.PlatformDefault sizeMinimum sizeiOS, iPadOS17 pt11 ptmacOS13 pt10 pttvOS29 pt23 ptvisionOS17 pt12 ptwatchOS16 pt12 ptTest legibility in different contexts. For example, you need to test game text for legibility on each platform on which your game runs. If testing shows that some of your text is difficult to read, consider using a larger type size, increasing contrast by modifying the text or background colors, or using typefaces designed for optimized legibility, like the system fonts.Testing a game on a new platform can show where text is hard to read.Increasing text size and adding visible background shapes can help make text easier to read.In general, avoid light font weights. For example, if you’re using system-provided fonts, prefer Regular, Medium, Semibold, or Bold font weights, and avoid Ultralight, Thin, and Light font weights, which can be difficult to see, especially when text is small.
+
+## Conveying hierarchy
+Adjust font weight, size, and color as needed to emphasize important information and help people visualize hierarchy. Be sure to maintain the relative hierarchy and visual distinction of text elements when people adjust text sizes.Minimize the number of typefaces you use, even in a highly customized interface. Mixing too many different typefaces can obscure your information hierarchy and hinder readability, in addition to making an interface feel internally inconsistent or poorly designed.Prioritize important content when responding to text-size changes. Not all content is equally important. When someone chooses a larger text size, they typically want to make the content they care about easier to read; they don’t always want to increase the size of every word on the screen. For example, when people increase text size to read the content in a tabbed window, they don’t expect the tab titles to increase in size. Similarly, in a game, people are often more interested in a character’s dialog than in transient hit-damage values.
+
+## Using system fonts
+Apple provides two typeface families that support an extensive range of weights, sizes, styles, and languages.San Francisco (SF) is a sans serif typeface family that includes the SF Pro, SF Compact, SF Arabic, SF Armenian, SF Georgian, SF Hebrew, and SF Mono variants.The system also offers SF Pro, SF Compact, SF Arabic, SF Armenian, SF Georgian, and SF Hebrew in rounded variants you can use to coordinate text with the appearance of soft or rounded UI elements, or to provide an alternative typographic voice.New York (NY) is a serif typeface family designed to work well by itself and alongside the SF fonts.You can download the San Francisco and New York fonts .The system provides the SF and NY fonts in the variable font format, which combines different font styles together in one file, and supports interpolation between styles to create intermediate ones.Variable fonts support optical sizing, which refers to the adjustment of different typographic designs to fit different sizes. On all platforms, the system fonts support dynamic optical sizes, which merge discrete optical sizes (like Text and Display) and weights into a single, continuous design, letting the system interpolate each glyph or letterform to produce a structure that’s precisely adapted to the point size. With dynamic optical sizes, you don’t need to use discrete optical sizes unless you’re working with a design tool that doesn’t support all the features of the variable font format.To help you define visual hierarchies and create clear and legible designs in many different sizes and contexts, the system fonts are available in a variety of weights, ranging from Ultralight to Black, and — in the case of SF — several widths, including Condensed and Expanded. Because SF Symbols use equivalent weights, you can achieve precise weight matching between symbols and adjacent text, regardless of the size or style you choose. provides a comprehensive library of symbols that integrate seamlessly with the San Francisco system font, automatically aligning with text in all weights and sizes. Consider using symbols when you need to convey a concept or depict an object, especially within text.The system defines a set of typographic attributes — called text styles — that work with both typeface families. A text style specifies a combination of font weight, point size, and leading values for each text size. For example, the body text style uses values that support a comfortable reading experience over multiple lines of text, while the headline style assigns a font size and weight that help distinguish a heading from surrounding content. Taken together, the text styles form a typographic hierarchy you can use to express the different levels of importance in your content. Text styles also allow text to scale proportionately when people change the system’s text size or make accessibility adjustments, like turning on Larger Text in Accessibility settings.Consider using the built-in text styles. The system-defined text styles give you a convenient and consistent way to convey your information hierarchy through font size and weight. Using text styles with the system fonts also ensures support for Dynamic Type and larger accessibility type sizes (where available), which let people choose the text size that works for them. For guidance, see .Modify the built-in text styles if necessary. System APIs define font adjustments — called symbolic traits — that let you modify some aspects of a text style. For example, the bold trait adds weight to text, letting you create another level of hierarchy. You can also use symbolic traits to adjust leading if you need to improve readability or conserve space. For example, when you display text in wide columns or long passages, more space between lines (loose leading) can make it easier for people to keep their place while moving from one line to the next. Conversely, if you need to display multiple lines of text in an area where height is constrained — for example, in a list row — decreasing the space between lines (tight leading) can help the text fit well. If you need to display three or more lines of text, avoid tight leading even in areas where height is limited. For developer guidance, see .You can use the constants defined in  to access all system fonts — don’t embed system fonts in your app or game. For example, use  to get the system font on all platforms; use  to get the New York font.If necessary, adjust tracking in interface mockups. In a running app, the system font dynamically adjusts tracking at every point size. To produce an accurate interface mockup of an interface that uses the variable system fonts, you don’t have to choose a discrete optical size at certain point sizes, but you might need to adjust the tracking. For guidance, see .
+
+## Using custom fonts
+Make sure custom fonts are legible. People need to be able to read your custom font easily at various viewing distances and under a variety of conditions. While using a custom font, be guided by the recommended minimum font sizes for various styles and weights in .Implement accessibility features for custom fonts. System fonts automatically support Dynamic Type (where available) and respond when people turn on accessibility features, such as Bold Text. If you use a custom font, make sure it implements the same behaviors. For developer guidance, see . In a Unity-based game, you can use  to support Dynamic Type. If the plug-in isn’t appropriate for your game, be sure to let players adjust text size in other ways.
+
+## Supporting Dynamic Type
+Dynamic Type is a system-level feature in iOS, iPadOS, tvOS, visionOS, and watchOS that lets people adjust the size of visible text on their device to ensure readability and comfort. For related guidance, see .Mail content at the default text sizeMail content at the largest accessibility text sizeFor a list of available Dynamic Type sizes, see . You can also download Dynamic Type size tables in the  for each platform.For developer guidance, see . To support Dynamic Type in Unity-based games, use Apple’s Unity plug-ins.Make sure your app’s layout adapts to all font sizes. Verify that your design scales, and that text and glyphs are legible at all font sizes. On iPhone or iPad, turn on Larger Accessibility Text Sizes in Settings > Accessibility > Display & Text Size > Larger Text, and confirm that your app remains comfortably readable.Increase the size of meaningful interface icons as font size increases. If you use interface icons to communicate important information, make sure they’re easy to view at larger font sizes too. When you use , you get icons that scale automatically with Dynamic Type size changes.Keep text truncation to a minimum as font size increases. In general, aim to display as much useful text at the largest accessibility font size as you do at the largest standard font size. Avoid truncating text in scrollable regions unless people can open a separate view to read the rest of the content. You can prevent text truncation in a label by configuring it to use as many lines as needed to display a useful amount of text. For developer guidance, see .Consider adjusting your layout at large font sizes. When font size increases in a horizontally constrained context, inline items (like glyphs and timestamps) and container boundaries can crowd text and cause truncation or overlapping. To improve readability, consider using a stacked layout where text appears above secondary items. Multicolumn text can also be less readable at large sizes due to horizontal space constraints. Reduce the number of columns when the font size increases to avoid truncation and enhance readability. For developer guidance, see .Maintain a consistent information hierarchy regardless of the current font size. For example, keep primary elements toward the top of a view even when the font size is very large, so that people don’t lose track of these elements.
+
+## Platform considerations
+
+
+## iOS, iPadOS
+SF Pro is the system font in iOS and iPadOS. iOS and iPadOS apps can also use NY.
+
+## macOS
+SF Pro is the system font in macOS. NY is available for Mac apps built with Mac Catalyst. macOS doesn’t support Dynamic Type.When necessary, use dynamic system font variants to match the text in standard controls. Dynamic system font variants give your text the same look and feel of the text that appears in system-provided controls. Use the variants listed below to achieve a look that’s consistent with other apps on the platform.Dynamic font variantAPIControl contentLabelMenuMenu barMessagePaletteTitleTool tipsDocument text (user)Monospaced document text (user fixed pitch)Bold system fontSystem font
+
+## tvOS
+SF Pro is the system font in tvOS, and apps can also use NY.
+
+## visionOS
+SF Pro is the system font in visionOS. If you use NY, you need to specify the type styles you want.visionOS uses bolder versions of the Dynamic Type body and title styles and it introduces Extra Large Title 1 and Extra Large Title 2 for wide, editorial-style layouts. For guidance using vibrancy to indicate hierarchy in text and symbols, see Materials > visionOS.In general, prefer 2D text. The more visual depth text characters have, the more difficult they can be to read. Although a small amount of 3D text can provide a fun visual element that draws people’s attention, if you’re going to display content that people need to read and understand, prefer using text that has little or no visual depth.Make sure text looks good and remains legible when people scale it. Use a text style that makes the text look good at full scale, then test it for legibility at different scales.Maximize the contrast between text and the background of its container. By default, the system displays text in white, because this color tends to provide a strong contrast with the default system background material, making text easier to read. If you want to use a different text color, be sure to test it in a variety of contexts.If you need to display text that’s not on a background, consider making it bold to improve legibility. In this situation, you generally want to avoid adding shadows to increase text contrast. The current space might not include a visual surface on which to cast an accurate shadow, and you can’t predict the size and density of shadow that would work well with a person’s current Environment.Keep text facing people as much as possible. If you display text that’s associated with a point in space, such as a label for a 3D object, you generally want to use billboarding — that is, you want the text to face the wearer regardless of how they or the object move. If you don’t rotate text to remain facing the wearer, the text can become impossible to read because people may view it from the side or a highly oblique angle. For example, imagine a virtual lamp that appears to be on a physical desk with a label anchored directly above it. For the text to remain readable, the label needs to rotate around the y-axis as people move around the desk; in other words, the baseline of the text needs to remain perpendicular to the person’s line of sight.
+
+## watchOS
+SF Compact is the system font in watchOS, and apps can also use NY. In complications, watchOS uses SF Compact Rounded.
+
+## Specifications
+You can display emphasized variants of system text styles using symbolic traits. In SwiftUI, use the  modifier; in UIKit, use  in the  API. The emphasized weights can be medium, semibold, bold, or heavy. The following specifications include the emphasized weight for each text style.
+
+## iOS, iPadOS Dynamic Type sizes
+
+
+## xSmall
+StyleWeightSize (points)Leading (points)Emphasized weightLarge TitleRegular3138BoldTitle 1Regular2531BoldTitle 2Regular1924BoldTitle 3Regular1722SemiboldHeadlineSemibold1419SemiboldBodyRegular1419SemiboldCalloutRegular1318SemiboldSubheadRegular1216SemiboldFootnoteRegular1216SemiboldCaption 1Regular1113SemiboldCaption 2Regular1113SemiboldPoint size based on image resolution of 144 ppi for @2x and 216 ppi for @3x designs.
+
+## Small
+StyleWeightSize (points)Leading (points)Emphasized weightLarge TitleRegular3239BoldTitle 1Regular2632BoldTitle 2Regular2025BoldTitle 3Regular1823SemiboldHeadlineSemibold1520SemiboldBodyRegular1520SemiboldCalloutRegular1419SemiboldSubheadRegular1318SemiboldFootnoteRegular1216SemiboldCaption 1Regular1113SemiboldCaption 2Regular1113SemiboldPoint size based on image resolution of 144 ppi for @2x and 216 ppi for @3x designs.
+
+## Medium
+StyleWeightSize (points)Leading (points)Emphasized weightLarge TitleRegular3340BoldTitle 1Regular2733BoldTitle 2Regular2126BoldTitle 3Regular1924SemiboldHeadlineSemibold1621SemiboldBodyRegular1621SemiboldCalloutRegular1520SemiboldSubheadRegular1419SemiboldFootnoteRegular1216SemiboldCaption 1Regular1113SemiboldCaption 2Regular1113SemiboldPoint size based on image resolution of 144 ppi for @2x and 216 ppi for @3x designs.
+
+## Large (default)
+StyleWeightSize (points)Leading (points)Emphasized weightLarge TitleRegular3441BoldTitle 1Regular2834BoldTitle 2Regular2228BoldTitle 3Regular2025SemiboldHeadlineSemibold1722SemiboldBodyRegular1722SemiboldCalloutRegular1621SemiboldSubheadRegular1520SemiboldFootnoteRegular1318SemiboldCaption 1Regular1216SemiboldCaption 2Regular1113SemiboldPoint size based on image resolution of 144 ppi for @2x and 216 ppi for @3x designs.
+
+## xLarge
+StyleWeightSize (points)Leading (points)Emphasized weightLarge TitleRegular3643BoldTitle 1Regular3037BoldTitle 2Regular2430BoldTitle 3Regular2228SemiboldHeadlineSemibold1924SemiboldBodyRegular1924SemiboldCalloutRegular1823SemiboldSubheadRegular1722SemiboldFootnoteRegular1520SemiboldCaption 1Regular1419SemiboldCaption 2Regular1318SemiboldPoint size based on image resolution of 144 ppi for @2x and 216 ppi for @3x designs.
+
+## xxLarge
+StyleWeightSize (points)Leading (points)Emphasized weightLarge TitleRegular3846BoldTitle 1Regular3239BoldTitle 2Regular2632BoldTitle 3Regular2430SemiboldHeadlineSemibold2126SemiboldBodyRegular2126SemiboldCalloutRegular2025SemiboldSubheadRegular1924SemiboldFootnoteRegular1722SemiboldCaption 1Regular1621SemiboldCaption 2Regular1520SemiboldPoint size based on image resolution of 144 ppi for @2x and 216 ppi for @3x designs.
+
+## xxxLarge
+StyleWeightSize (points)Leading (points)Emphasized weightLarge TitleRegular4048BoldTitle 1Regular3441BoldTitle 2Regular2834BoldTitle 3Regular2632SemiboldHeadlineSemibold2329SemiboldBodyRegular2329SemiboldCalloutRegular2228SemiboldSubheadRegular2128SemiboldFootnoteRegular1924SemiboldCaption 1Regular1823SemiboldCaption 2Regular1722SemiboldPoint size based on image resolution of 144 ppi for @2x and 216 ppi for @3x designs.
+
+## iOS, iPadOS larger accessibility type sizes
+
+
+## AX1
+StyleWeightSize (points)Leading (points)Emphasized weightLarge TitleRegular4452BoldTitle 1Regular3846BoldTitle 2Regular3441BoldTitle 3Regular3138SemiboldHeadlineSemibold2834SemiboldBodyRegular2834SemiboldCalloutRegular2632SemiboldSubheadRegular2531SemiboldFootnoteRegular2329SemiboldCaption 1Regular2228SemiboldCaption 2Regular2025SemiboldPoint size based on image resolution of 144 ppi for @2x and 216 ppi for @3x designs.
+
+## AX2
+StyleWeightSize (points)Leading (points)Emphasized weightLarge TitleRegular4857BoldTitle 1Regular4351BoldTitle 2Regular3947BoldTitle 3Regular3744SemiboldHeadlineSemibold3340SemiboldBodyRegular3340SemiboldCalloutRegular3239SemiboldSubheadRegular3037SemiboldFootnoteRegular2733SemiboldCaption 1Regular2632SemiboldCaption 2Regular2430SemiboldPoint size based on image resolution of 144 ppi for @2x and 216 ppi for @3x designs.
+
+## AX3
+StyleWeightSize (points)Leading (points)Emphasized weightLarge TitleRegular5261BoldTitle 1Regular4857BoldTitle 2Regular4452BoldTitle 3Regular4351SemiboldHeadlineSemibold4048SemiboldBodyRegular4048SemiboldCalloutRegular3846SemiboldSubheadRegular3643SemiboldFootnoteRegular3340SemiboldCaption 1Regular3239SemiboldCaption 2Regular2935SemiboldPoint size based on image resolution of 144 ppi for @2x and 216 ppi for @3x designs.
+
+## AX4
+StyleWeightSize (points)Leading (points)Emphasized weightLarge TitleRegular5666BoldTitle 1Regular5362BoldTitle 2Regular5059BoldTitle 3Regular4958SemiboldHeadlineSemibold4756SemiboldBodyRegular4756SemiboldCalloutRegular4452SemiboldSubheadRegular4250SemiboldFootnoteRegular3846SemiboldCaption 1Regular3744SemiboldCaption 2Regular3441SemiboldPoint size based on image resolution of 144 ppi for @2x and 216 ppi for @3x designs.
+
+## AX5
+StyleWeightSize (points)Leading (points)Emphasized weightLarge TitleRegular6070BoldTitle 1Regular5868BoldTitle 2Regular5666BoldTitle 3Regular5565SemiboldHeadlineSemibold5362SemiboldBodyRegular5362SemiboldCalloutRegular5160SemiboldSubheadRegular4958SemiboldFootnoteRegular4452SemiboldCaption 1Regular4351SemiboldCaption 2Regular4048SemiboldPoint size based on image resolution of 144 ppi for @2x and 216 ppi for @3x designs.
+
+## macOS built-in text styles
+Text styleWeightSize (points)Line height (points)Emphasized weightLarge TitleRegular2632BoldTitle 1Regular2226BoldTitle 2Regular1722BoldTitle 3Regular1520SemiboldHeadlineBold1316HeavyBodyRegular1316SemiboldCalloutRegular1215SemiboldSubheadlineRegular1114SemiboldFootnoteRegular1013SemiboldCaption 1Regular1013MediumCaption 2Medium1013SemiboldPoint size based on image resolution of 144 ppi for @2x designs.
+
+## tvOS built-in text styles
+Text styleWeightSize (points)Leading (points)Emphasized weightTitle 1Medium7696BoldTitle 2Medium5766BoldTitle 3Medium4856BoldHeadlineMedium3846BoldSubtitle 1Regular3846MediumCalloutMedium3138BoldBodyMedium2936BoldCaption 1Medium2532BoldCaption 2Medium2330BoldPoint size based on image resolution of 72 ppi for @1x and 144 ppi for @2x designs.
+
+## watchOS Dynamic Type sizes
+
+
+## xSmall
+StyleWeightSize (points)Leading (points)Emphasized weightLarge TitleRegular3032.5BoldTitle 1Regular2830.5SemiboldTitle 2Regular2426.5SemiboldTitle 3Regular1719.5SemiboldHeadlineSemibold1416.5SemiboldBodyRegular1416.5SemiboldCaption 1Regular1315.5SemiboldCaption 2Regular1214.5SemiboldFootnote 1Regular1113.5SemiboldFootnote 2Regular1012.5Semibold
+
+## Small (default 38mm)
+StyleWeightSize (points)Leading (points)Emphasized weightLarge TitleRegular3234.5BoldTitle 1Regular3032.5SemiboldTitle 2Regular2628.5SemiboldTitle 3Regular1820.5SemiboldHeadlineSemibold1517.5SemiboldBodyRegular1517.5SemiboldCaption 1Regular1416.5SemiboldCaption 2Regular1315.5SemiboldFootnote 1Regular1214.5SemiboldFootnote 2Regular1113.5Semibold
+
+## Large (default 40mm/41mm/42mm)
+StyleWeightSize (points)Leading (points)Emphasized weightLarge TitleRegular3638.5BoldTitle 1Regular3436.5SemiboldTitle 2Regular2830.5SemiboldTitle 3Regular1921.5SemiboldHeadlineSemibold1618.5SemiboldBodyRegular1618.5SemiboldCaption 1Regular1517.5SemiboldCaption 2Regular1416.5SemiboldFootnote 1Regular1315.5SemiboldFootnote 2Regular1214.5Semibold
+
+## xLarge (default 44mm/45mm/49mm)
+StyleWeightSize (points)Leading (points)Emphasized weightLarge TitleRegular4042.5BoldTitle 1Regular3840.5SemiboldTitle 2Regular3032.5SemiboldTitle 3Regular2022.5SemiboldHeadlineSemibold1719.5SemiboldBodyRegular1719.5SemiboldCaption 1Regular1618.5SemiboldCaption 2Regular1517.5SemiboldFootnote 1Regular1416.5SemiboldFootnote 2Regular1315.5Semibold
+
+## xxLarge
+StyleWeightSize (points)Leading (points)Emphasized weightLarge TitleRegular4143.5BoldTitle 1Regular3941.5SemiboldTitle 2Regular3133.5SemiboldTitle 3Regular2123.5SemiboldHeadlineSemibold1820.5SemiboldBodyRegular1820.5SemiboldCaption 1Regular1719.5SemiboldCaption 2Regular1618.5SemiboldFootnote 1Regular1517.5SemiboldFootnote 2Regular1416.5Semibold
+
+## xxxLarge
+StyleWeightSize (points)Leading (points)Emphasized weightLarge TitleRegular4244.5BoldTitle 1Regular4042.5SemiboldTitle 2Regular3234.5SemiboldTitle 3Regular2224.5SemiboldHeadlineSemibold1921.5SemiboldBodyRegular1921.5SemiboldCaption 1Regular1820.5SemiboldCaption 2Regular1719.5SemiboldFootnote 1Regular1618.5SemiboldFootnote 2Regular1517.5Semibold
+
+## watchOS larger accessibility type sizes
+
+
+## AX1
+StyleWeightSize (points)Leading (points)Emphasized weightLarge TitleRegular4446.5BoldTitle 1Regular4244.5SemiboldTitle 2Regular3441SemiboldTitle 3Regular2426.5SemiboldHeadlineSemibold2123.5SemiboldBodyRegular2123.5SemiboldCaption 1Regular1820.5SemiboldCaption 2Regular1719.5SemiboldFootnote 1Regular1618.5SemiboldFootnote 2Regular1517.5Semibold
+
+## AX2
+StyleWeightSize (points)Leading (points)Emphasized weightLarge TitleRegular4547.5BoldTitle 1Regular4346SemiboldTitle 2Regular3537.5SemiboldTitle 3Regular2527.5SemiboldHeadlineSemibold2224.5SemiboldBodyRegular2224.5SemiboldCaption 1Regular1921.5SemiboldCaption 2Regular1820.5SemiboldFootnote 1Regular1719.5SemiboldFootnote 2Regular1617.5Semibold
+
+## AX3
+StyleWeightSize (points)Leading (points)Emphasized weightLarge TitleRegular4648.5BoldTitle 1Regular4447SemiboldTitle 2Regular3638.5SemiboldTitle 3Regular2628.5SemiboldHeadlineSemibold2325.5SemiboldBodyRegular2325.5SemiboldCaption 1Regular2022.5SemiboldCaption 2Regular1921.5SemiboldFootnote 1Regular1820.5SemiboldFootnote 2Regular1719.5Semibold
+
+## Tracking values
+
+
+## iOS, iPadOS, visionOS tracking values
+
+
+## SF Pro
+Size (points)Tracking (1/1000 em)Tracking (points)6+41+0.247+34+0.238+26+0.219+19+0.1710+12+0.1211+6+0.061200.013-6-0.0814-11-0.1515-16-0.2316-20-0.3117-26-0.4318-25-0.4419-24-0.4520-23-0.4521-18-0.3622-12-0.2623-4-0.1024+3+0.0725+6+0.1526+8+0.2227+11+0.2928+14+0.3829+14+0.4030+14+0.4031+13+0.3932+13+0.4133+12+0.4034+12+0.4035+11+0.3836+10+0.3737+10+0.3638+10+0.3739+10+0.3840+10+0.3741+9+0.3642+9+0.3743+9+0.3844+8+0.3745+8+0.3546+8+0.3647+8+0.3748+8+0.3549+7+0.3350+7+0.3451+7+0.3552+6+0.3353+6+0.3154+6+0.3256+6+0.3058+5+0.2860+4+0.2662+4+0.2464+4+0.2266+3+0.1968+2+0.1770+2+0.1472+2+0.1476+1+0.0780008400880092009600Not all apps express tracking values as 1/1000 em. Point size based on image resolution of 144 ppi for @2x and 216 ppi for @3x designs.
+
+## SF Pro Rounded
+Size (points)Tracking (1/1000 em)Tracking (points)6+87+0.517+80+0.548+72+0.579+65+0.5710+58+0.5711+52+0.5612+46+0.5413+40+0.5114+35+0.4815+30+0.4416+26+0.4117+22+0.3718+21+0.3719+20+0.3720+18+0.3621+17+0.3522+16+0.3423+16+0.3524+15+0.3525+14+0.3526+14+0.3627+14+0.3628+13+0.3629+13+0.3730+12+0.3731+12+0.3632+12+0.3833+12+0.3934+12+0.3835+11+0.3836+11+0.3937+10+0.3838+10+0.3939+10+0.3840+10+0.3941+10+0.3842+10+0.3943+9+0.3844+8+0.3745+8+0.3746+8+0.3647+8+0.3748+8+0.3549+8+0.3650+7+0.3451+6+0.3252+6+0.3353+6+0.3154+6+0.3256+6+0.3058+4+0.2560+4+0.2362+4+0.2164+3+0.1966+2+0.1668+2+0.1370+2+0.1472+2+0.1176+1+0.078000.008400.008800.009200.009600.00Not all apps express tracking values as 1/1000 em. Point size based on image resolution of 144 ppi for @2x and 216 ppi for @3x designs.
+
+## New York
+Size (points)Tracking (1/1000 em)Tracking (points)6+40+0.237+32+0.228+25+0.209+20+0.1810+16+0.1511+11+.1212+6+0.0713+4+0.0514+2+0.0315+0+0.0016-2-0.0317-4-0.0718-6-0.1119-8-0.1520-10-0.2021-10-0.2122-10-0.2323-11-0.2524-11-0.2625-11-0.2726-12-0.2927-12-0.3228-12-0.3329-12-0.3430-12-0.3731-13-0.3932-13-0.4133-13-0.4234-14-0.4535-14-0.4836-14-0.4938-14-0.5240-14-0.5542-14-0.5744-14-0.6246-14-0.6548-14-0.6850-14-0.7152-14-0.7454-15-0.7958-15-0.8562-15-0.9166-15-0.9770-16-1.0672-16-1.0980-16-1.2188-16-1.3396-16-1.50100-16-1.56120-16-1.88140-16-2.26160-16-2.58180-17-2.99200-17-3.32220-18-3.76240-18-4.22260-18-4.57Not all apps express tracking values as 1/1000 em. Point size based on image resolution of 144 ppi for @2x and 216 ppi for @3x designs.
+
+## macOS tracking values
+Size (points)Tracking (1/1000 em)Tracking (points)6+41+0.247+34+0.238+26+0.219+19+0.1710+12+0.1211+6+0.061200.013-6-0.0814-11-0.1515-16-0.2316-20-0.3117-26-0.4318-25-0.4419-24-0.4520-23-0.4521-18-0.3622-12-0.2623-4-0.1024+3+0.0725+6+0.1526+8+0.2227+11+0.2928+14+0.3829+14+0.4030+14+0.4031+13+0.3932+13+0.4133+12+0.4034+12+0.4035+11+0.3836+10+0.3737+10+0.3638+10+0.3739+10+0.3840+10+0.3741+9+0.3642+9+0.3743+9+0.3844+8+0.3745+8+0.3546+8+0.3647+8+0.3748+8+0.3549+7+0.3350+7+0.3451+7+0.3552+6+0.3153+6+0.3354+6+0.3256+6+0.3058+5+0.2860+4+0.2662+4+0.2464+4+0.2266+3+0.1968+2+0.1770+2+0.1472+2+0.1476+1+0.0780008400880092009600Not all apps express tracking values as 1/1000 em. Point size based on image resolution of 144 ppi for @2x and 216 ppi for @3x designs.
+
+## tvOS tracking values
+Size (points)Tracking (1/1000 em)Tracking (points)6+41+0.247+34+0.238+26+0.219+19+0.1710+12+0.1211+6+0.061200.013-6-0.0814-11-0.1515-16-0.2316-20-0.3117-26-0.4318-25-0.4419-24-0.4520-23-0.4521-18-0.3622-12-0.2623-4-0.1024+3+0.0725+6+0.1526+8+0.2227+11+0.2928+14+0.3829+14+0.4030+14+0.4031+13+0.3932+13+0.4133+12+0.4034+12+0.4035+11+0.3836+10+0.3737+10+0.3638+10+0.3739+10+0.3840+10+0.3741+9+0.3642+9+0.3743+9+0.3844+8+0.3745+8+0.3546+8+0.3647+8+0.3748+8+0.3549+7+0.3350+7+0.3451+7+0.3552+6+0.3153+6+0.3354+6+0.3256+6+0.3058+5+0.2860+4+0.2662+4+0.2464+4+0.2266+3+0.1968+2+0.1770+2+0.1472+2+0.1476+1+0.0780008400880092009600Not all apps express tracking values as 1/1000 em. Point size based on image resolution of 144 ppi for @2x and 216 ppi for @3x designs.
+
+## watchOS tracking values
+
+
+## SF Compact
+Size (points)Tracking (1/1000 em)Tracking (points)6+50+0.297+30+0.218+30+0.239+30+0.2610+30+0.2911+24+0.2612+20+0.2313+16+0.2014+14+0.1915+4+0.061600.0017-4-0.0718-8-0.1419-12-0.222000.0021-2-0.0422-4-0.0923-6-0.1324-8-0.1925-10-0.2426-11-0.2827-12-0.3028-12-0.3429-14-0.3830-14-0.4231-15-0.4532-16-0.5033-17-0.5534-18-0.6035-18-0.6336-20-0.6937-20-0.7238-20-0.7439-20-0.7640-20-0.7841-20-0.8042-20-0.8243-20-0.8444-20-0.8645-20-0.8846-20-0.9247-20-0.9448-20-0.9649-21-1.0050-21-1.0351-21-1.0552-21-1.0753-22-1.1154-22-1.1356-22-1.2058-22-1.2560-22-1.3262-22-1.3664-23-1.4466-24-1.5168-24-1.5670-24-1.6472-24-1.6976-25-1.8680-26-1.9984-26-2.1388-26-2.2892-28-2.4796-28-2.62Not all apps express tracking values as 1/1000 em. Point size based on image resolution of 144 ppi for @2x designs.
+
+## SF Compact Rounded
+Size (points)Tracking (1/1000 em)Tracking (points)6+28+0.167+26+0.188+24+0.199+22+0.1910+20+0.2011+18+0.1912+16+0.1913+14+0.1814+12+0.1615+10+0.1516+8+0.1217+6+0.1018+4+0.0719+2+0.042000.0021-2-0.0422-4-0.0923-6-0.1324-8-0.1925-10-0.2426-11-0.2827-12-0.3028-12-0.3429-14-0.3830-14-0.4231-15-0.4532-16-0.5033-17-0.5534-18-0.6035-18-0.6336-20-0.6937-20-0.7238-20-0.7439-20-0.7640-20-0.7841-20-0.8042-20-0.8243-20-0.8444-20-0.8645-20-0.8846-20-0.9247-20-0.9448-20-0.9649-21-1.0050-21-1.0351-21-1.0552-21-1.0753-22-1.1154-22-1.1356-22-1.2058-22-1.2560-22-1.3262-22-1.3664-23-1.4466-24-1.5168-24-1.5670-24-1.6472-24-1.6976-25-1.8680-26-1.9984-26-2.1388-26-2.2892-28-2.4796-28-2.62Not all apps express tracking values as 1/1000 em. Point size based on image resolution of 144 ppi for @2x designs.
+
+## Resources
+
+
+## Related
+Fonts for Apple platforms
+
+## Developer documentation
+ — SwiftUI — UIKit — AppKit
+
+## Videos
+
+
+## Change log
+DateChangesDecember 16, 2025Added emphasized weights to the Dynamic Type style specifications for each platform.March 7, 2025Expanded guidance for Dynamic Type.June 10, 2024Added guidance for using Apple’s Unity plug-ins to support Dynamic Type in a Unity-based game and enhanced guidance on billboarding in a visionOS app or game.September 12, 2023Added artwork illustrating system font weights, and clarified tvOS specification table descriptions.June 21, 2023Updated to include guidance for visionOS.

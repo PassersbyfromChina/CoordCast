@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- M3 dialog surface: surfaceContainerHigh, corner extra-large, no stroke. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/m3_surface_container_high" />
+    <corners android:radius="@dimen/radius_extra_large" />
+</shape>

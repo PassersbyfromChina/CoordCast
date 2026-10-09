@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Material 3 Expressive, single screen.
+
+    * everything sits on the M3 `surface`; there is no card around the form, because M3
+      puts fields directly on the surface rather than in nested containers
+    * the two input fields are outlined text fields (1dp outline -> 2dp primary on focus)
+    * the datum picker is a single-select segmented button
+    * the actions live in a bottom bar: one outlined button, one filled
+
+  System bar and keyboard insets are applied at runtime by MainActivity.
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/m3_surface">
+
+    <ScrollView
+        android:id="@+id/scroll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:overScrollMode="never"
+        android:paddingBottom="112dp"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/gutter"
+            android:paddingEnd="@dimen/gutter">
+
+            <TextView
+                android:id="@+id/title"
+                style="@style/Text.CastHeadlineLarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_20"
+                android:text="@string/app_name" />
+
+            <TextView
+                android:id="@+id/tagline"
+                style="@style/Text.CastBodyMedium"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_4"
+                android:text="@string/app_tagline"
+                android:textColor="@color/m3_on_surface_variant" />
+
+            <!-- ============================================ coordinate fields === -->
+            <com.coordcast.castui.CastTextField
+                android:id="@+id/field_latitude"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="@dimen/space_24">
+
+                <com.coordcast.app.CoordEditText
+                    android:id="@+id/input_latitude"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:imeOptions="actionNext"
+                    android:importantForAutofill="no"
+                    android:inputType="text"
+                    android:singleLine="true" />
+            </com.coordcast.castui.CastTextField>
+
+            <com.coordcast.castui.CastTextField
+                android:id="@+id/field_longitude"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="@dimen/space_16">
+
+                <com.coordcast.app.CoordEditText
+                    android:id="@+id/input_longitude"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:imeOptions="actionDone"
+                    android:importantForAutofill="no"
+                    android:inputType="text"
+                    android:singleLine="true" />
+            </com.coordcast.castui.CastTextField>
+
+            <!-- Supporting text, directly under the fields — M3 puts it there. -->
+            <LinearLayout
+                android:id="@+id/message_row"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_8"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/message_icon"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:contentDescription="@null"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_alert"
+                    android:tint="@color/m3_on_surface_variant" />
+
+                <TextView
+                    android:id="@+id/message_text"
+                    style="@style/Text.CastBodySmall"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/space_8"
+                    android:layout_weight="1"
+                    android:text="@string/msg_idle"
+                    android:textColor="@color/m3_on_surface_variant" />
+            </LinearLayout>
+
+            <!-- Field actions: M3 text buttons, so they read as labels, not boxes. -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_4"
+                android:gravity="end"
+                android:orientation="horizontal">
+
+                <com.coordcast.castui.CastButton
+                    android:id="@+id/btn_paste"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:contentDescription="@string/cd_paste"
+                    android:text="@string/action_paste" />
+
+                <com.coordcast.castui.CastButton
+                    android:id="@+id/btn_clear"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="@dimen/space_4"
+                    android:contentDescription="@string/cd_clear"
+                    android:text="@string/action_clear" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="@dimen/space_16"
+                android:background="@color/m3_outline_variant" />
+
+            <!-- ======================================================== datum === -->
+            <TextView
+                android:id="@+id/section_datum"
+                style="@style/Text.CastTitleMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_20"
+                android:text="@string/section_datum" />
+
+            <com.coordcast.castui.CastSegmentedButton
+                android:id="@+id/seg_datum"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginTop="@dimen/space_12" />
+
+            <TextView
+                style="@style/Text.CastBodySmall"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_12"
+                android:text="@string/datum_tip"
+                android:textColor="@color/m3_on_surface_variant" />
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Scroll edge: content fades into the surface under the bottom bar. -->
+    <View
+        android:id="@+id/bottom_fade"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:layout_gravity="bottom"
+        android:background="@drawable/fade_to_surface"
+        android:importantForAccessibility="no" />
+
+    <!-- Bottom bar: the two actions, M3 outlined + filled. -->
+    <LinearLayout
+        android:id="@+id/action_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@color/m3_surface_container"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/gutter"
+        android:paddingTop="@dimen/space_12"
+        android:paddingEnd="@dimen/gutter"
+        android:paddingBottom="@dimen/space_12">
+
+        <com.coordcast.castui.CastButton
+            android:id="@+id/btn_view"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:contentDescription="@string/cd_view"
+            android:text="@string/action_view" />
+
+        <com.coordcast.castui.CastButton
+            android:id="@+id/btn_route"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="@dimen/space_12"
+            android:layout_weight="1"
+            android:contentDescription="@string/cd_route"
+            android:text="@string/action_route" />
+    </LinearLayout>
+
+</FrameLayout>

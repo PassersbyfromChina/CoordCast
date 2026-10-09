@@ -1,0 +1,172 @@
+﻿===== https://lbs.amap.com/api/amap-mobile/guide/android/ride-navi =====
+最后更新时间: 2024年08月08日
+输入终点，以用户当前位置为起点开始骑行导航，提示用户每段行驶路线以到达目的地。
+支持版本V8.26.0 起
+。
+使用示例
+cat=android.intent.action.VIEW
+dat=amapuri://openFeature?featureName=OnRideNavi&rideType=elebike&sourceApplication=appname&lat=36.547901&lon=104.258354&dev=0
+参数说明
+参数
+说明
+是否必填
+openFeature
+外部调用必备字段。
+是
+featureName
+功能名称，OnRideNavi 为骑行导航。
+是
+rideType
+骑行类型，elebike 为电动车，bike 或留空为自行车。
+是
+sourceApplication
+第三方调用应用名称。如：appname，为了保障对您的服务，请务必填写！！
+是
+lat
+纬度
+是
+lon
+经度
+是
+dev
+是否偏移(0:lat 和 lon 是已经加密后的,不需要国测加密; 1:需要国测加密)
+是
+
+
+===== https://lbs.amap.com/api/amap-mobile/guide/android/bus-query =====
+最后更新时间: 2024年08月08日
+输入公交线路名称，如 445，搜索该条线路经过的所有公交站点。
+支持版本 v4.2.1 起
+。
+使用示例
+act=android.intent.action.VIEW
+cat=android.intent.category.DEFAULT
+dat=androidamap://bus?sourceApplication=softname&busname=445&city=010
+pkg=com.autonavi.minimap
+参数说明
+参数
+说明
+是否必填
+bus
+服务类型
+是
+sourceApplication
+第三方调用应用名称。如：appname，为了保障对您的服务，请务必填写！！
+是
+busname
+公交名称
+是
+city
+城市编码或者城市名，
+参考城市代码
+是
+
+
+===== https://lbs.amap.com/api/amap-mobile/guide/android/keyword-navi =====
+最后更新时间: 2024年08月08日
+根据名称，启动高德地图产品搜索终点，选择终点后开始启动导航。
+支持版本 V5.0.0 起
+。
+使用示例
+act=android.intent.action.VIEW
+cat=android.intent.category.DEFAULT
+dat=androidamap://keywordNavi?sourceApplication=softname&keyword=方恒国际中心&style=2
+pkg=com.autonavi.minimap
+参数说明
+参数
+说明
+是否必填
+keywordNavi
+服务类型
+是
+sourceApplication
+第三方调用应用名称。如：appname，为了保障对您的服务，请务必填写！！
+是
+keyword
+搜索关键字
+是
+style
+导航方式(0 速度快; 1 费用少; 2 路程短; 3 不走高速；4躲避拥堵；5不走高速且避免收费；6不走高速且躲避拥堵；7躲避收费和拥堵；8不走高速躲避收费和拥堵)
+由于与用户本地设置冲突，Android 平台 7.6.5 版本起不支持该参数，偏好设置将以用户本地设置为准
+是
+注意：poiname 如为中文，请使用 URI 编码
+
+
+===== https://lbs.amap.com/api/amap-mobile/guide/android/location =====
+最后更新时间: 2024年08月08日
+显示我当前的位置。
+支持版本 V4.2.1 起
+。
+使用示例
+act=android.intent.action.VIEW
+cat=android.intent.category.DEFAULT
+data=androidamap://myLocation?sourceApplication=softname
+pkg=com.autonavi.minimap
+参数说明
+参数
+说明
+是否必填
+myLocation
+服务类型
+是
+sourceApplication
+第三方调用应用名称。如：appname，为了保障对您的服务，请务必填写！！
+是
+
+
+===== https://lbs.amap.com/api/amap-mobile/guide/android/search =====
+最后更新时间: 2024年08月08日
+POI搜索
+搜索周边的超市、银行、加油站等分类信息。
+支持版本 V5.1.3起
+。
+使用示例
+act=android.intent.action.VIEW
+cat=android.intent.category.DEFAULT
+dat=androidamap://poi?sourceApplication=softname&keywords=银行|加油站|电影院&lat1=36.1&lon1=116.1&lat2=36.2&lon2=116.2&dev=0
+或dat=androidamap://poi?sourceApplication=softname&keywords=银行|加油站|电影院&dev=0
+pkg=com.autonavi.minimap
+参数说明
+参数
+说明
+是否必填
+poi
+服务类型
+是
+sourceApplication
+第三方调用应用名称。如：appname，为了保障对您的服务，请务必填写！！
+是
+keywords
+搜索POI的关键字，如银行、加油站
+是
+lat1
+经纬度参数(左上)
+否
+lon1
+经纬度参数(左上)
+否
+lat2
+经纬度参数(右下)
+否
+lon2
+经纬度参数(右下)
+否
+dev
+起终点是否偏移(0：lat和lon是已经加密后的，不需要国测加密；1：需要国测加密)
+否
+备注: 多个关键字用"|"隔开。
+
+
+===== https://lbs.amap.com/api/amap-mobile/guide/android/map =====
+最后更新时间: 2024年06月25日
+进入高德地图主图页面。
+支持版本 V4.2.1 起
+。
+使用示例
+act=android.intent.action.VIEW
+cat=android.intent.category.DEFAULT
+data=androidamap://rootmap?sourceApplication=applicationName
+pkg=com.autonavi.minimap
+
+
+

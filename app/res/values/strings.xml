@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">坐标投递</string>
+    <string name="app_tagline">输入经纬度，交给地图应用打开</string>
+
+    <!-- Inputs -->
+    <string name="label_latitude">纬度</string>
+    <string name="label_longitude">经度</string>
+    <string name="hint_latitude">31.2304 或 31°13\'49.4\"N</string>
+    <string name="hint_longitude">121.4737 或 121°28\'25.3\"E</string>
+    <string name="action_paste">粘贴</string>
+    <string name="action_clear">清空</string>
+    <string name="cd_paste">从剪贴板粘贴坐标</string>
+    <string name="cd_clear">清空输入</string>
+
+    <!-- Inline feedback, shown directly under the two fields -->
+    <string name="msg_idle">支持小数与度分秒，可从任意文本中识别</string>
+    <string name="msg_lat_only">已识别纬度 %1$s，还缺经度</string>
+    <string name="msg_lng_only">已识别经度 %1$s，还缺纬度</string>
+    <string name="msg_empty">没有识别到经纬度</string>
+    <string name="msg_minutes">分或秒需在 0–60 之间</string>
+    <string name="msg_range">数值超出经纬度范围（±90 / ±180）</string>
+    <string name="msg_invalid">纬度需在 ±90 之间，经度需在 ±180 之间</string>
+    <string name="msg_swapped">纬度和经度似乎填反了</string>
+    <string name="msg_ok">GCJ-02 %1$s</string>
+    <string name="msg_shift">偏移 %1$s</string>
+    <string name="status_clipboard_empty">剪贴板里没有文字</string>
+    <string name="status_share_imported">已导入分享的文本</string>
+
+    <!-- Datum -->
+    <string name="section_datum">坐标系</string>
+    <string name="datum_tip">高德、百度、腾讯使用 GCJ-02。来自 GPS、谷歌地图的坐标选 WGS-84。</string>
+
+    <!-- Actions -->
+    <string name="action_view">查看</string>
+    <string name="action_route">路线</string>
+    <string name="cd_view">在选定的地图应用里查看该位置</string>
+    <string name="cd_route">在选定的地图应用里规划到该位置的路线</string>
+    <string name="need_point">请先补全经纬度</string>
+    <string name="sheet_open_with">选择地图应用</string>
+
+    <!-- No map app could take the point -->
+    <string name="dlg_title_no_amap">未检测到地图应用</string>
+    <string name="dlg_msg_no_amap">可以先用网页版地图打开这个位置，或安装高德地图后再试。</string>
+    <string name="dlg_msg_no_handler">没有应用可以打开这个链接，试试网页版地图。</string>
+    <string name="action_install">安装高德地图</string>
+    <string name="action_use_web">用网页版打开</string>
+    <string name="action_cancel">取消</string>
+
+    <string name="cd_pin">位置</string>
+</resources>

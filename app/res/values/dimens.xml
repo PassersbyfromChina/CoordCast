@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Material 3 shape scale, plus the spacing steps the layouts use. -->
+<resources>
+    <!-- shape -->
+    <dimen name="radius_none">0dp</dimen>
+    <dimen name="radius_extra_small">4dp</dimen>
+    <dimen name="radius_small">8dp</dimen>
+    <dimen name="radius_medium">12dp</dimen>
+    <dimen name="radius_large">16dp</dimen>
+    <dimen name="radius_extra_large">28dp</dimen>
+
+    <!-- spacing -->
+    <dimen name="space_2">2dp</dimen>
+    <dimen name="space_4">4dp</dimen>
+    <dimen name="space_6">6dp</dimen>
+    <dimen name="space_8">8dp</dimen>
+    <dimen name="space_10">10dp</dimen>
+    <dimen name="space_12">12dp</dimen>
+    <dimen name="space_14">14dp</dimen>
+    <dimen name="space_16">16dp</dimen>
+    <dimen name="space_18">18dp</dimen>
+    <dimen name="space_20">20dp</dimen>
+    <dimen name="space_24">24dp</dimen>
+    <dimen name="space_32">32dp</dimen>
+
+    <!-- layout -->
+    <dimen name="gutter">16dp</dimen>
+    <dimen name="button_height">40dp</dimen>
+    <dimen name="field_height">56dp</dimen>
+    <dimen name="icon_sm">18dp</dimen>
+    <dimen name="icon_md">24dp</dimen>
+    <dimen name="sheet_handle_width">32dp</dimen>
+    <dimen name="sheet_handle_height">4dp</dimen>
+</resources>

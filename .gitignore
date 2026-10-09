@@ -1,0 +1,23 @@
+# Build output
+build/
+*.class
+*.dex
+
+# Signing material — never commit a keystore to a public repository.
+# See README "从源码构建" for the keytool command that creates your own.
+keystore/
+*.jks
+*.keystore
+*.pepk
+
+# Local toolchain / IDE
+local.properties
+.idea/
+*.iml
+.gradle/
+.vscode/
+
+# OS noise
+Thumbs.db
+Desktop.ini
+.DS_Store

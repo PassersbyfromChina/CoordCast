@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Material 3 Expressive. Type is the M3 scale (Roboto, which Android ships) and every
+  colour referenced here is a role from colors.xml.
+-->
+<resources>
+
+    <style name="AppTheme" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/m3_surface</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:colorAccent">@color/m3_primary</item>
+        <item name="android:colorControlActivated">@color/m3_primary</item>
+        <item name="android:colorControlHighlight">@color/m3_state_layer</item>
+        <item name="android:textColorPrimary">@color/m3_on_surface</item>
+        <item name="android:textColorSecondary">@color/m3_on_surface_variant</item>
+        <item name="android:textColorHint">@color/m3_on_surface_variant</item>
+        <item name="android:windowContentTransitions">true</item>
+        <item name="android:windowActivityTransitions">true</item>
+    </style>
+
+    <!-- ============================================================== type === -->
+
+    <style name="Text" />
+
+    <style name="Text.CastHeadlineLarge">
+        <item name="android:textSize">32sp</item>
+        <item name="android:textColor">@color/m3_on_surface</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:letterSpacing">0</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="Text.CastTitleMedium">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/m3_on_surface</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.009</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="Text.CastBodyMedium">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/m3_on_surface</item>
+        <item name="android:letterSpacing">0.018</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="Text.CastBodySmall">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/m3_on_surface_variant</item>
+        <item name="android:letterSpacing">0.033</item>
+        <item name="android:lineSpacingExtra">3dp</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="Text.CastLabelLarge">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/m3_on_surface</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.007</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <!-- ======================================================== components === -->
+
+    <!-- Base for the dotted names below: "Widget.CastDialog" implies a parent "Widget". -->
+    <style name="Widget" />
+
+    <!-- M3 basic dialog: one surfaceContainerHigh card, corner extra-large, no divider. -->
+    <style name="Widget.CastDialog">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:padding">@dimen/space_24</item>
+    </style>
+
+    <!-- M3 modal bottom sheet: surfaceContainerLow, top corners extra-large. -->
+    <style name="Widget.CastSheet">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:paddingTop">@dimen/space_12</item>
+        <item name="android:paddingBottom">@dimen/space_12</item>
+    </style>
+
+</resources>

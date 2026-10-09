@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  M3 basic dialog: one surfaceContainerHigh card at corner extra-large, headline +
+  supporting text, and text buttons bottom-right. No divider, no stroke — elevation is
+  what lifts it off the scrim.
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="@dimen/space_24">
+
+    <LinearLayout
+        style="@style/Widget.CastDialog"
+        android:background="@drawable/dialog_surface"
+        android:elevation="6dp">
+
+        <TextView
+            android:id="@+id/dialog_title"
+            style="@style/Text.CastHeadlineLarge"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/dlg_title_no_amap"
+            android:textSize="24sp" />
+
+        <TextView
+            android:id="@+id/dialog_message"
+            style="@style/Text.CastBodyMedium"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_16"
+            android:text="@string/dlg_msg_no_amap"
+            android:textColor="@color/m3_on_surface_variant" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_24"
+            android:gravity="end"
+            android:orientation="horizontal">
+
+            <com.coordcast.castui.CastButton
+                android:id="@+id/dialog_cancel"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:text="@string/action_cancel" />
+
+            <com.coordcast.castui.CastButton
+                android:id="@+id/dialog_primary"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_marginStart="@dimen/space_8"
+                android:text="@string/action_use_web" />
+
+            <com.coordcast.castui.CastButton
+                android:id="@+id/dialog_secondary"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_marginStart="@dimen/space_8"
+                android:text="@string/action_install" />
+        </LinearLayout>
+    </LinearLayout>
+
+</FrameLayout>

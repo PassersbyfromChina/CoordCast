@@ -1,0 +1,13 @@
+# Keep the working tree LF everywhere. The build reads sources with javac/aapt2, both
+# line-ending agnostic, but a checkout that silently rewrites every file to CRLF makes
+# "does my clone match the repo?" needlessly hard to answer.
+* text=auto eol=lf
+
+# Never touch these: a text filter on a binary corrupts it.
+*.png binary
+*.jpg binary
+*.pdf binary
+*.jar binary
+*.apk binary
+*.jks binary
+*.keystore binary

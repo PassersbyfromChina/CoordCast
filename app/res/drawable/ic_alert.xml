@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Alert: circled exclamation for status banners. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="15dp"
+    android:height="15dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M3.4,12 A8.6,8.6 0 0 0 20.6,12 A8.6,8.6 0 0 0 3.4,12 Z"
+        android:strokeColor="@color/m3_on_surface"
+        android:strokeWidth="1.8" />
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M12,7.4 V13"
+        android:strokeColor="@color/m3_on_surface"
+        android:strokeLineCap="round"
+        android:strokeWidth="1.8" />
+    <path
+        android:fillColor="@color/m3_on_surface"
+        android:pathData="M11.1,16.3 A0.9,0.9 0 0 0 12.9,16.3 A0.9,0.9 0 0 0 11.1,16.3 Z" />
+</vector>
