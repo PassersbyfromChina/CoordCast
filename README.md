@@ -1,5 +1,9 @@
 # 坐标投递 · CoordCast
 
+[**⬇ 下载 APK**](https://github.com/PassersbyfromChina/CoordCast/releases/latest) ·
+[最新发布](https://github.com/PassersbyfromChina/CoordCast/releases) ·
+[全部源码](https://github.com/PassersbyfromChina/CoordCast)
+
 把**任意格式**的经纬度，**投递**给**任意一个**地图应用。
 
 粘贴 `31°13'49.4"N 121°28'25.3"E`、`31.13.49.4`、`31-13-49.4`、`311349.4N`、
@@ -60,6 +64,9 @@
 ## 安装
 
 下载 [`dist/CoordCast-1.6.1.apk`](dist/CoordCast-1.6.1.apk)，传到手机点开安装。
+
+也可以从 [Releases](https://github.com/PassersbyfromChina/CoordCast/releases/latest) 页面下载——
+那里同样挂着三个库 jar。两条路径给的是同一个文件（下面这个哈希对两者都成立）：
 
 APK 是自签名包（不是应用商店版本），手机需要允许「安装未知来源应用」。
 
