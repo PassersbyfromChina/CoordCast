@@ -6,15 +6,13 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
+import android.graphics.Typeface;
 import android.util.AttributeSet;
-import android.view.Gravity;
+import android.util.TypedValue;
 import android.view.HapticFeedbackConstants;
 import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewConfiguration;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,39 +20,43 @@ import java.util.List;
 /**
  * A Material 3 single-select segmented button.
  *
- * <p><b>Why this is not a sliding "pill".</b> A single thumb that travels between segments is an
- * iOS idiom, not an M3 one. In the M3 implementation (see
- * {@code androidx.compose.material3.SegmentedButton}) every segment is its own surface with its
- * own container colour: the selected segment simply fills in place, and the only motion is the
- * check fading and scaling in from its own bottom-left corner, plus the label displacing to make
- * room for it. Nothing travels between segments.</p>
+ * <p>Follows {@code androidx.compose.material3.SegmentedButton}: every segment is its own
+ * surface with its own container colour, the selected one fills <em>in place</em>, the check
+ * enters with {@code fadeIn + scaleIn(initialScale = 0, transformOrigin = (0, 1))} — growing
+ * out of its own bottom-left corner — and the label shifts by half the icon-plus-gap because
+ * the pair is centred as a group. Nothing travels between segments; a sliding thumb is an iOS
+ * idiom, not an M3 one.</p>
  *
- * <p>The sliding version had exactly the problems you would expect from that mismatch: geometry
- * that had to be kept in sync with layout (and was not, so a cold start showed no selection at
- * all), a drag that could silently change the selection, and touch handling that could swallow
- * gestures belonging to a scrolling parent.</p>
+ * <p><b>The labels are drawn here rather than being child {@code TextView}s.</b> The earlier
+ * version used children and they rendered their text above the segment's centre no matter what
+ * gravity they were given, even though a view-hierarchy dump showed them correctly sized and
+ * positioned at full segment height. Owning the baseline removes that whole category of
+ * problem: the text is placed from {@link Paint.FontMetrics} and cannot disagree with the box
+ * it is drawn in.</p>
  *
  * <p>Tap only. A drag never changes the selection, and vertical drags are left for an ancestor
  * to intercept, so this can live inside a ScrollView.</p>
  */
-public class CastSegmentedButton extends FrameLayout {
+public class CastSegmentedButton extends View {
 
     /** Notified after the user picks a different segment. */
     public interface OnSegmentSelected {
         void onSegmentSelected(int index);
     }
 
-    /** M3 segmented button height. */
     private static final float HEIGHT_DP = 40f;
-    /** M3 check icon size in a segmented button. */
     private static final float ICON_DP = 18f;
-    /** Gap between the check and the label. */
     private static final float ICON_GAP_DP = 8f;
+    private static final float LABEL_SP = 14f;
+    /** M3 label-large tracking, in em (0.1sp at 14sp). */
+    private static final float LABEL_TRACKING_EM = 0.1f / 14f;
 
-    private final LinearLayout row = new LinearLayout(getContext());
-    private final List<TextView> labels = new ArrayList<>();
+    private final List<String> items = new ArrayList<>();
+
     private final Paint fillPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint strokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint labelPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint boldPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint checkPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Path shape = new Path();
     private final Path check = new Path();
@@ -63,10 +65,7 @@ public class CastSegmentedButton extends FrameLayout {
 
     private int selected;
     private boolean dragging;
-
-    /** 0 = no check, 1 = check fully in. Drives the check and the label displacement. */
     private float checkProgress = 1f;
-    /** Segment the finger is on, or -1. Drives the M3 press state layer. */
     private int pressedIndex = -1;
     private float downX;
     private float downY;
@@ -80,36 +79,39 @@ public class CastSegmentedButton extends FrameLayout {
 
     public CastSegmentedButton(Context context, AttributeSet attrs) {
         super(context, attrs);
-        setWillNotDraw(false);
-        int height = CastShape.dp(context, HEIGHT_DP);
-        setMinimumHeight(height);
-        row.setOrientation(LinearLayout.HORIZONTAL);
-        addView(row, new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height));
         setClickable(true);
         setFocusable(true);
+
+        labelPaint.setColor(0xFF9AA0A6);
+        labelPaint.setTextSize(sp(context, LABEL_SP));
+        labelPaint.setLetterSpacing(LABEL_TRACKING_EM);
+        labelPaint.setTypeface(Typeface.create("sans-serif", Typeface.NORMAL));
+
+        boldPaint.set(labelPaint);
+        boldPaint.setTypeface(Typeface.create("sans-serif", Typeface.BOLD));
+
+        checkPaint.setStyle(Paint.Style.STROKE);
+        checkPaint.setStrokeCap(Paint.Cap.ROUND);
+        checkPaint.setStrokeJoin(Paint.Join.ROUND);
+    }
+
+    private static float sp(Context c, float value) {
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, value,
+                c.getResources().getDisplayMetrics());
     }
 
     // ----------------------------------------------------------- public API
 
-    public void setItems(String[] items, int initialIndex) {
-        row.removeAllViews();
-        labels.clear();
-        for (String item : items) {
-            TextView label = new TextView(getContext());
-            label.setText(item);
-            CastType.labelLarge(label);
-            label.setGravity(Gravity.CENTER);
-            label.setSingleLine(true);
-            label.setClickable(false);
-            row.addView(label, new LinearLayout.LayoutParams(0,
-                    ViewGroup.LayoutParams.MATCH_PARENT, 1f));
-            labels.add(label);
+    public void setItems(String[] newItems, int initialIndex) {
+        items.clear();
+        for (String s : newItems) {
+            items.add(s);
         }
-        selected = items.length == 0 ? 0
-                : Math.max(0, Math.min(initialIndex, items.length - 1));
+        selected = items.isEmpty() ? 0
+                : Math.max(0, Math.min(initialIndex, items.size() - 1));
         checkProgress = 1f;
-        refreshLabels();
         updateContentDescription();
+        requestLayout();
         invalidate();
     }
 
@@ -117,18 +119,17 @@ public class CastSegmentedButton extends FrameLayout {
         return selected;
     }
 
-    public void setOnSegmentSelected(OnSegmentSelected listener) {
-        this.listener = listener;
+    public void setOnSegmentSelected(OnSegmentSelected l) {
+        this.listener = l;
     }
 
     /** Programmatic selection; {@code notify} decides whether the listener fires. */
     public void select(int index, boolean notify) {
-        if (index < 0 || index >= labels.size()) {
+        if (index < 0 || index >= items.size()) {
             return;
         }
         boolean changed = index != selected;
         selected = index;
-        refreshLabels();
         updateContentDescription();
         animateCheck();
         if (notify && changed) {
@@ -139,10 +140,18 @@ public class CastSegmentedButton extends FrameLayout {
         }
     }
 
-    // ------------------------------------------------------------ geometry
+    // ----------------------------------------------------------- measurement
+
+    @Override
+    protected void onMeasure(int widthSpec, int heightSpec) {
+        int want = Math.max(Math.round(CastShape.dp(getContext(), HEIGHT_DP)),
+                getSuggestedMinimumHeight());
+        setMeasuredDimension(resolveSize(getSuggestedMinimumWidth(), widthSpec),
+                resolveSize(want, heightSpec));
+    }
 
     private int count() {
-        return labels.size();
+        return items.size();
     }
 
     private float segmentWidth() {
@@ -159,9 +168,8 @@ public class CastSegmentedButton extends FrameLayout {
     }
 
     /**
-     * The rounded rect for one segment. Only the outer ends of the group are rounded; interior
-     * edges are square and pushed out by half a stroke so two neighbouring segments draw exactly
-     * the same dividing line, instead of two lines a pixel apart.
+     * The rounded rect for one segment. Only the outer ends are rounded; interior edges are
+     * pushed out by half a stroke so two neighbours draw exactly the same dividing line.
      */
     private void shapeFor(int i, float stroke, Path out) {
         float segW = segmentWidth();
@@ -183,6 +191,24 @@ public class CastSegmentedButton extends FrameLayout {
         out.addRoundRect(rect, radii, Path.Direction.CW);
     }
 
+    /** The icon-plus-gap-plus-label group for a segment, laid out as one centred run. */
+    private float groupWidth(int i) {
+        Paint p = i == selected ? boldPaint : labelPaint;
+        return CastShape.dp(getContext(), ICON_DP) + CastShape.dp(getContext(), ICON_GAP_DP)
+                + p.measureText(items.get(i));
+    }
+
+    private float groupLeft(int i) {
+        float segW = segmentWidth();
+        return i * segW + (segW - groupWidth(i)) / 2f;
+    }
+
+    /** Baseline that centres the text's ascent/descent box on {@code centreY}. */
+    private float baselineFor(Paint p, float centreY) {
+        Paint.FontMetrics fm = p.getFontMetrics();
+        return centreY - (fm.ascent + fm.descent) / 2f;
+    }
+
     // ------------------------------------------------------------ painting
 
     @Override
@@ -192,25 +218,25 @@ public class CastSegmentedButton extends FrameLayout {
             return;
         }
         CastColor scheme = CastColor.get();
-        float density = getResources().getDisplayMetrics().density;
-        float stroke = Math.max(density, CastShape.dp(getContext(), 1));
+        float stroke = Math.max(getResources().getDisplayMetrics().density,
+                CastShape.dp(getContext(), 1));
 
-        // 1. Fills first, so a neighbour's outline cannot be covered by the selected fill.
-        fillPaint.setStyle(Paint.Style.FILL);
+        // 1. Fill, so a neighbour's outline cannot cover it.
         if (selected >= 0 && selected < n) {
             shapeFor(selected, stroke, shape);
+            fillPaint.setStyle(Paint.Style.FILL);
             fillPaint.setColor(scheme.secondaryContainer);
             canvas.drawPath(shape, fillPaint);
         }
 
-        // 2. Press state layer: a 10% veil of the content colour, not a different fill.
+        // 2. Press state layer: a 10% veil, not a different fill.
         if (pressedIndex >= 0 && pressedIndex < n) {
             shapeFor(pressedIndex, stroke, shape);
             fillPaint.setColor(CastColor.pressed(scheme.onSurface));
             canvas.drawPath(shape, fillPaint);
         }
 
-        // 3. Outlines, one per segment. Shared edges land exactly on top of each other.
+        // 3. Outlines.
         strokePaint.setStyle(Paint.Style.STROKE);
         strokePaint.setStrokeWidth(stroke);
         strokePaint.setColor(scheme.outline);
@@ -219,44 +245,42 @@ public class CastSegmentedButton extends FrameLayout {
             canvas.drawPath(shape, strokePaint);
         }
 
-        // 4. The check, scaling in from its bottom-left corner: M3 enters it with
-        //    scaleIn(initialScale = 0, transformOrigin = (0, 1)) plus a fade.
+        // 4. Labels, then the check in front of the selected one.
+        float centreY = getHeight() / 2f;
+        for (int i = 0; i < n; i++) {
+            boolean on = i == selected;
+            Paint p = on ? boldPaint : labelPaint;
+            p.setColor(on ? scheme.onSecondaryContainer : scheme.onSurfaceVariant);
+            float left = groupLeft(i);
+            if (on) {
+                left += CastShape.dp(getContext(), ICON_DP) + CastShape.dp(getContext(), ICON_GAP_DP);
+            }
+            canvas.drawText(items.get(i), left, baselineFor(p, centreY), p);
+        }
         if (checkProgress > 0.001f && selected >= 0 && selected < n) {
-            drawCheck(canvas, selected, scheme.onSecondaryContainer, stroke);
+            drawCheck(canvas, selected, scheme.onSecondaryContainer, stroke, centreY);
         }
     }
 
-    private void drawCheck(Canvas canvas, int index, int color, float stroke) {
-        float segW = segmentWidth();
+    private void drawCheck(Canvas canvas, int index, int color, float stroke, float centreY) {
         float d = CastShape.dp(getContext(), ICON_DP);
-        float gap = CastShape.dp(getContext(), ICON_GAP_DP);
-        TextView label = labels.get(index);
-
-        // Check and label are centred in the segment as one group, which is what the M3
-        // measure policy does: group width = icon + gap + label.
-        float groupW = d + gap + label.getMeasuredWidth();
-        float groupLeft = index * segW + (segW - groupW) / 2f;
-        float originX = groupLeft;
-        float originY = getHeight() / 2f + d / 2f;
+        float originX = groupLeft(index);
+        float originY = centreY + d / 2f;
 
         float p = Math.min(1f, checkProgress);
         int save = canvas.save();
         canvas.scale(p, p, originX, originY);
 
-        checkPaint.setStyle(Paint.Style.STROKE);
         checkPaint.setStrokeWidth(Math.max(CastShape.dp(getContext(), 2), stroke * 2f));
-        checkPaint.setStrokeCap(Paint.Cap.ROUND);
-        checkPaint.setStrokeJoin(Paint.Join.ROUND);
         checkPaint.setColor(color);
         checkPaint.setAlpha(Math.round(255 * p));
 
         float cx = originX + d / 2f;
-        float cy = getHeight() / 2f;
         float s = d / 2f;
         check.reset();
-        check.moveTo(cx - s * 0.72f, cy + s * 0.04f);
-        check.lineTo(cx - s * 0.20f, cy + s * 0.56f);
-        check.lineTo(cx + s * 0.72f, cy - s * 0.52f);
+        check.moveTo(cx - s * 0.72f, centreY + s * 0.04f);
+        check.lineTo(cx - s * 0.20f, centreY + s * 0.56f);
+        check.lineTo(cx + s * 0.72f, centreY - s * 0.52f);
         canvas.drawPath(check, checkPaint);
         canvas.restoreToCount(save);
     }
@@ -319,78 +343,34 @@ public class CastSegmentedButton extends FrameLayout {
 
     // ------------------------------------------------------------ animation
 
-    /** Plays the M3 enter transition for the check when the selection moves. */
     private void animateCheck() {
         if (!CastMotion.animationsEnabled(getContext())) {
             checkProgress = 1f;
-            positionLabels();
             invalidate();
             return;
         }
         if (checkAnimator != null) {
             checkAnimator.cancel();
         }
-        // Start from nothing so the check does not flash at full size for one frame.
         checkProgress = 0f;
-        positionLabels();
         invalidate();
         checkAnimator = ValueAnimator.ofFloat(0f, 1f);
-        // The icon shares the label's fast spatial spring in M3; the fade rides along.
         checkAnimator.setDuration(CastMotion.MEDIUM1);
         checkAnimator.setInterpolator(CastMotion.SPATIAL_FAST);
         checkAnimator.addUpdateListener(a -> {
             checkProgress = (float) a.getAnimatedValue();
-            positionLabels();
             invalidate();
         });
         checkAnimator.start();
     }
 
-    @Override
-    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        super.onLayout(changed, left, top, right, bottom);
-        positionLabels();
-    }
-
     /**
-     * Displaces the selected label to make room for the check. M3 moves the content by half the
-     * icon-plus-gap, because the group is centred rather than left-aligned.
-     */
-    private void positionLabels() {
-        if (labels.isEmpty()) {
-            return;
-        }
-        for (TextView label : labels) {
-            label.measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED);
-        }
-        float shift = (CastShape.dp(getContext(), ICON_DP)
-                + CastShape.dp(getContext(), ICON_GAP_DP)) / 2f;
-        for (int i = 0; i < labels.size(); i++) {
-            boolean on = i == selected;
-            labels.get(i).setTranslationX(on ? shift * Math.min(1f, checkProgress) : 0f);
-        }
-    }
-
-    private void refreshLabels() {
-        CastColor scheme = CastColor.get();
-        for (int i = 0; i < labels.size(); i++) {
-            TextView label = labels.get(i);
-            boolean on = i == selected;
-            label.setTextColor(on ? scheme.onSecondaryContainer : scheme.onSurfaceVariant);
-            label.setTypeface(android.graphics.Typeface.create("sans-serif",
-                    on ? android.graphics.Typeface.BOLD : android.graphics.Typeface.NORMAL));
-        }
-        positionLabels();
-    }
-
-    /**
-     * A custom view with plain child views exposes one accessibility node, so there is no
-     * per-segment semantics here; announcing the current value is the honest minimum. Real
-     * per-segment support needs {@code ExploreByTouchHelper}.
+     * A {@code View} has no per-segment semantics; announcing the current value is the honest
+     * minimum. Real per-segment support needs {@code ExploreByTouchHelper}.
      */
     private void updateContentDescription() {
-        if (selected >= 0 && selected < labels.size()) {
-            setContentDescription(labels.get(selected).getText());
+        if (selected >= 0 && selected < items.size()) {
+            setContentDescription(items.get(selected));
         }
     }
 }

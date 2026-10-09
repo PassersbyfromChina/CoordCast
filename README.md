@@ -63,7 +63,7 @@
 
 ## 安装
 
-下载 [`dist/CoordCast-1.7.1.apk`](dist/CoordCast-1.7.1.apk)，传到手机点开安装。
+下载 [`dist/CoordCast-1.7.2.apk`](dist/CoordCast-1.7.2.apk)，传到手机点开安装。
 
 也可以从 [Releases](https://github.com/PassersbyfromChina/CoordCast/releases/latest) 页面下载——
 那里同样挂着三个库 jar。两条路径给的是同一个文件（下面这个哈希对两者都成立）：
@@ -71,9 +71,9 @@
 APK 是自签名包（不是应用商店版本），手机需要允许「安装未知来源应用」。
 
 ```
-版本    1.7.1 (versionCode 13)
+版本    1.7.2 (versionCode 14)
 大小    121,477 字节
-SHA-256 C5C00D81EACAC795B1B70E5C144EEA092A5CA89EAA758AB976431B8D875ED6DF
+SHA-256 62C3DB188752B3A8291CF6AE9B4D056AC190226B02D96F8D543761014B2E3B46
 签名    APK Signature Scheme v2 + v3
 权限    无（安装时权限列表为空）
 ```
@@ -81,8 +81,8 @@ SHA-256 C5C00D81EACAC795B1B70E5C144EEA092A5CA89EAA758AB976431B8D875ED6DF
 校验下载是否完整：
 
 ```bash
-sha256sum CoordCast-1.7.1.apk                      # Linux / macOS
-certutil -hashfile CoordCast-1.7.1.apk SHA256      # Windows
+sha256sum CoordCast-1.7.2.apk                      # Linux / macOS
+certutil -hashfile CoordCast-1.7.2.apk SHA256      # Windows
 ```
 
 > 构建是**逐字节可复现的**：`tools/src/ZipTool.java` 给所有 zip 条目写入同一个固定时间戳，
@@ -220,9 +220,9 @@ N31.2304 E121.4737                  前置半球字母
 
 | 模块 | 依赖 | 做什么 | 产物 |
 |---|---|---|---|
-| **`castcore`** | **纯 Java，零 Android** | 文本 → 经纬度；WGS-84 / GCJ-02 / BD-09 互转 | `castcore-1.7.1.jar` |
-| **`castmap`** | Android + castcore | 发现装了哪些地图应用、拼深链、拉起 | `castmap-1.7.1.jar` |
-| **`castui`** | Android，无其他依赖 | Material 3 Expressive 组件 | `castui-1.7.1.jar` |
+| **`castcore`** | **纯 Java，零 Android** | 文本 → 经纬度；WGS-84 / GCJ-02 / BD-09 互转 | `castcore-1.7.2.jar` |
+| **`castmap`** | Android + castcore | 发现装了哪些地图应用、拼深链、拉起 | `castmap-1.7.2.jar` |
+| **`castui`** | Android，无其他依赖 | Material 3 Expressive 组件 | `castui-1.7.2.jar` |
 
 三个模块都**不带资源文件**（M3 组件全部代码绘制），所以是普通 jar，不是 AAR——
 丢进任何 Android 工程就能用，不需要合并资源。
@@ -325,8 +325,8 @@ scheme.primary = 0xFFFFD8E4;
 `tools/build.ps1` 每次构建都会用它**只对着 jar** 编译一遍——如果公开 API 用不了，构建就会失败。
 
 ```bash
-javac -cp "dist/castcore-1.7.1.jar;dist/castmap-1.7.1.jar" -d out samples/Sample.java
-java  -cp "dist/castcore-1.7.1.jar;dist/castmap-1.7.1.jar;out" Sample
+javac -cp "dist/castcore-1.7.2.jar;dist/castmap-1.7.2.jar" -d out samples/Sample.java
+java  -cp "dist/castcore-1.7.2.jar;dist/castmap-1.7.2.jar;out" Sample
 ```
 
 输出：
@@ -380,6 +380,19 @@ M3 是**基于角色**的系统：组件永远不引用调色板里的原始色�
 
 采样脚本留在调研记录里可复现；`app/res/values/colors.xml` 与 `CastColor.dark()` 是同一组值。
 
+#### 1.7.2：标签整体偏上，改成自绘
+
+1.7.1 的截图里三个标签都明显高于控件中线，勾却是居中的。量了一下：控件内部 y 1237..1347、
+中心 1292，而标签墨迹的中心比中线高约 13dp。视图树 dump 显示布局**没问题**——
+控件 110px（40dp），三个 `TextView` 各自满高 110px。**盒子是对的，字画在了盒子上部。**
+
+不再和 `TextView` 较劲：标签改成 `Canvas.drawText` 自己画，基线由
+`Paint.FontMetrics` 算出（`baseline = centerY − (ascent + descent) / 2`）。
+控件本身也从 `FrameLayout + 子 TextView` 变成单个自绘 `View`。
+
+这个控件前后坏了两次——先滑块的几何状态，再子视图的文字基线——根子都是
+"把布局交给别人，然后猜它会怎么做"。现在它自己画全部内容。
+
 ### 状态层：M3 的招牌交互
 
 M3 **不用换填充色来表示 hover / press**，而是在静止填充之上盖一层内容色的半透明**状态层**
@@ -393,7 +406,7 @@ M3 **不用换填充色来表示 hover / press**，而是在静止填充之上�
 |---|---|
 | **CastButton** | 五种变体（filled / tonal / elevated / outlined / text），高 40dp，胶囊形，Label Large；按下时**圆角张开**（Expressive 形变） |
 | **CastTextField** | outlined 输入框：1dp `outline` → 聚焦 2dp `primary`；标签上浮并**切进边框缺口**（缺口是真的路径断开，不是盖一层背景色，所以在任何底色上都对） |
-| **CastSegmentedButton** | 单选分段按钮，严格照 androidx `material3.SegmentedButton`：每个段是**自己的**容器，选中段**原地**填 `secondaryContainer`；18dp 勾从**自身左下角**缩放淡入；标签右移半个「勾+间距」；段间 1dp `outline`；只可点击，**没有任何会滑动的东西** |
+| **CastSegmentedButton** | 单选分段按钮，严格照 androidx `material3.SegmentedButton`：每个段是**自己的**容器，选中段**原地**填 `secondaryContainer`；18dp 勾从**自身左下角**缩放淡入；标签右移半个「勾+间距」；段间 1dp `outline`；只可点击，**没有任何会滑动的东西**。整个控件是**自绘 `View`**——标签用 `Canvas.drawText` 加字体度量定位，没有子视图 |
 | **模态底部面板** | `surfaceContainerLow`，顶角 28dp，32×4dp 拖拽把手，56dp 列表项；从屏幕底边用强调减速曲线升起 |
 | **对话框** | `surfaceContainerHigh` + 28dp 圆角，无描边（靠高度分层），动作是右下角的文本按钮 |
 
